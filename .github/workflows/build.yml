@@ -12,7 +12,7 @@ jobs:
       contents: write
     runs-on: ubuntu-latest
     env:
-      PROJECT_PATH: Unsheathed-Test1/Unsheathed-Test1
+      # Also the .dll name
       PROJECT_NAME: Unsheathed
       THUNDERSTORE_NAME: unsheathed
       THUNDERSTORE_NAMESPACE: bromelda
@@ -58,7 +58,7 @@ jobs:
         with:
           name: thunderstore packages
           path: |
-            ./build/${{ env.PROJECT_NAME }}-${{ env.GitVersion_MajorMinorPatch }}.zip
+            ./build/${{ env.THUNDERSTORE_NAMESPACE }}-${{ env.THUNDERSTORE_NAME }}-${{ env.GitVersion_MajorMinorPatch }}.zip
           retention-days: 1
           compression-level: 0 # no compression      
 
@@ -73,4 +73,4 @@ jobs:
 #          prerelease: true
 #          tag_name: v${{ env.GitVersion_MajorMinorPatch }}
 #          files: |
-#            ./build/${{ env.PROJECT_NAME }}-${{ env.GitVersion_MajorMinorPatch }}.zip
+#            ./build/${{ env.THUNDERSTORE_NAMESPACE }}-${{ env.THUNDERSTORE_NAME }}-${{ env.GitVersion_MajorMinorPatch }}.zip
