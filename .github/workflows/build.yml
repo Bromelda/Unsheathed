@@ -11,6 +11,11 @@ jobs:
     permissions:
       contents: write
     runs-on: ubuntu-latest
+    env:
+      PROJECT_PATH: Unsheathed-Test1/Unsheathed-Test1
+      PROJECT_NAME: Unsheathed
+      THUNDERSTORE_NAME: unsheathed
+      THUNDERSTORE_NAMESPACE: bromelda
 
     steps:
       - name: Install GitVersion
@@ -34,23 +39,26 @@ jobs:
       - name: Build (Release)
         run: dotnet build . --configuration Release --no-restore -p:Version=$GitVersion_SemVer
 
-# TODO once ready to upload to thunderstore
-#      - name: Update versions in toml files
-#        run: |
-#          sed -i 's/__VERSION__/${{ env.GitVersion_MajorMinorPatch }}/g' ./thunderstore.toml
-#
-#      - name: Install Thunderstore CLI (tcli)
-#        run: dotnet tool install --global tcli
-#
-#      - name: Build Thunderstore package
-#        run: tcli build --config-path ./thunderstore.toml
+      - name: Update project constants in toml file
+        run: |
+          sed -i 's/__VERSION__/${{ env.GitVersion_MajorMinorPatch }}/g' ./thunderstore.toml
+          sed -i 's/__GITHUB_REPO__/${{ env.GITHUB_REPOSITORY }}/g' ./thunderstore.toml
+          sed -i 's/__PROJECT_NAME__/${{ env.PROJECT_NAME }}/g' ./thunderstore.toml
+          sed -i 's/__NAME__/${{ env.THUNDERSTORE_NAME }}/g' ./thunderstore.toml
+          sed -i 's/__NAMESPACE__/${{ env.THUNDERSTORE_NAMESPACE }}/g' ./thunderstore.toml
+
+      - name: Install Thunderstore CLI (tcli)
+        run: dotnet tool install --global tcli
+
+      - name: Build Thunderstore package
+        run: tcli build --config-path ./thunderstore.toml
 
       - name: Upload artifacts during pipeline for testing
         uses: actions/upload-artifact@v4
         with:
           name: thunderstore packages
           path: |
-            ./build/Unsheathed-${{ env.GitVersion_MajorMinorPatch }}.zip
+            ./build/${{ env.PROJECT_NAME }}-${{ env.GitVersion_MajorMinorPatch }}.zip
           retention-days: 1
           compression-level: 0 # no compression      
 
@@ -65,4 +73,4 @@ jobs:
 #          prerelease: true
 #          tag_name: v${{ env.GitVersion_MajorMinorPatch }}
 #          files: |
-#            ./build/Unsheathed-${{ env.GitVersion_MajorMinorPatch }}.zip
+#            ./build/${{ env.PROJECT_NAME }}-${{ env.GitVersion_MajorMinorPatch }}.zip

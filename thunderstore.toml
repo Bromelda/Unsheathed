@@ -1,0 +1,33 @@
+[config]
+schemaVersion = "0.0.1"
+
+[package]
+namespace = "__NAMESPACE__"
+name = "__NAME__"
+versionNumber = "__VERSION__"
+description = "Server mod that adds changes weapon abilities"
+websiteUrl = "https://github.com/__GITHUB_REPO__"
+containsNsfwContent = false
+
+[package.dependencies]
+BepInEx-BepInExPack_V_Rising = "1.733.2"
+deca-VampireCommandFramework = "0.10.3"
+
+[build]
+icon = "./icon.png"
+readme = "./README.md"
+outdir = "./build"
+
+[[build.copy]]
+source = "./bin/Release/net6.0/__PROJECT_NAME__.dll"
+target = "./__PROJECT_NAME__.dll"
+
+[[build.copy]]
+source = "./CHANGELOG.md"
+target = "./CHANGELOG.md"
+
+[publish]
+communities = ["v-rising"]
+repository = "https://thunderstore.io"
+[publish.categories]
+v-rising = ["oakveil-update", "mods", "server"]
