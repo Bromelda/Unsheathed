@@ -19,10 +19,14 @@ internal static class AbilityRunScriptsSystemPatch
 
    
 
-    const float Spell_COOLDOWN_FACTOR = 8f;
-    const float Weapon_COOLDOWN_FACTOR = 1f;
-    public static IReadOnlyDictionary<PrefabGUID, int> ClassSpells => _classSpells;
-    static readonly Dictionary<PrefabGUID, int> _classSpells = [];
+    
+    const float Weapon_COOLDOWN_FACTOR = 1f; 
+
+    
+    static readonly bool _spiritArsenal = ConfigService.SpiritArsenal;
+
+    
+ 
 
     public static IReadOnlyDictionary<PrefabGUID, int> WeaponAbility => _weaponAbility;
     static readonly Dictionary<PrefabGUID, int> _weaponAbility = [];
@@ -37,6 +41,7 @@ internal static class AbilityRunScriptsSystemPatch
     static void OnUpdatePrefix(AbilityRunScriptsSystem __instance)
     {
         if (!Core._initialized) return;
+          else if (!_spiritArsenal) return;
        
 
         // NativeArray<Entity> entities = __instance._OnCastEndedQuery.ToEntityArray(Allocator.Temp);
@@ -72,4 +77,5 @@ internal static class AbilityRunScriptsSystemPatch
     }
 
    
+
 }
