@@ -32,29 +32,7 @@ internal static class Core
     public static ManualLogSource Log => Plugin.LogInstance;
 
 
-    static ConfigFile _saCfg;
-    static ConfigEntry<bool> _saEnabled;
-
-    public static void InitSpiritArsenalConfig()
-    {
-        var saDir = Path.Combine(BepInEx.Paths.ConfigPath, MyPluginInfo.PLUGIN_NAME);
-        Directory.CreateDirectory(saDir);
-
-        var saPath = Path.Combine(saDir, "SpiritArsenal.cfg");
-        _saCfg = new ConfigFile(saPath, true); // autosave on change
-
-        // Use a dedicated "SpiritArsenal" section
-        _saEnabled = _saCfg.Bind(
-            "SpiritArsenal",
-            "Enabled",
-            false,
-            "Enable Spirit Arsenal weapon replacements and tweaks."
-        );
-
-        Plugin.LogInstance.LogInfo($"SpiritArsenal config ready at: {saPath}");
-    }
-
-    public static bool SpiritArsenalEnabled => _saEnabled?.Value ?? false;
+    
 
     public static void ApplyEquipBuff(Entity entity, int groupGuid, int slot = 1)
     {
@@ -926,3 +904,4 @@ public struct NativeAccessor<T>(NativeArray<T> array) : IDisposable where T : un
     public NativeArray<T>.Enumerator GetEnumerator() => _array.GetEnumerator();
     public void Dispose() => _array.Dispose();
 }
+
