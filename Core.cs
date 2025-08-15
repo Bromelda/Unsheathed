@@ -147,7 +147,7 @@ internal static class Core
     static void ModifyPrefabs()
     {
        
-       /*
+       
         {
             if (SystemService.PrefabCollectionSystem._PrefabGuidToEntityMap.TryGetValue(Buffs.BonusStatsBuff, out Entity prefabEntity))
             {
@@ -161,7 +161,7 @@ internal static class Core
                 // Buff_ApplyBuffOnDamageTypeDealt_DataShared
             }
         }
-       */
+       
         if (ConfigService.SpiritArsenal)
         {
 
@@ -904,4 +904,5 @@ public struct NativeAccessor<T>(NativeArray<T> array) : IDisposable where T : un
     public NativeArray<T>.Enumerator GetEnumerator() => _array.GetEnumerator();
     public void Dispose() => _array.Dispose();
 }
+
 
