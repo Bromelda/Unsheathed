@@ -1,7 +1,7 @@
-﻿using System.Collections;
+using System.Collections;
 using UnityEngine;
 
-namespace Unsheathed;
+namespace Unshseathed;
 internal static class IExtensions
 {
     static readonly System.Random _random = new();
@@ -121,3 +121,4 @@ internal static class IExtensions
         Core.StopCoroutine(coroutine);
     }
 }
+
