@@ -9,7 +9,7 @@ using ProjectM.Shared.Systems;
 using ProjectM.Tiles;
 using Unity.Entities;
 
-namespace Unsheathed.Services;
+namespace Bloodcraft.Services;
 internal class SystemService(World world)
 {
     readonly World _world = world ?? throw new ArgumentNullException(nameof(world));

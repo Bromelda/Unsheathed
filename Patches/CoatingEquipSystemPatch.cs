@@ -1,5 +1,5 @@
-﻿using Unsheathed.Interfaces;
-using Unsheathed.Services;
+﻿
+using Bloodcraft.Services;
 
 using HarmonyLib;
 using ProjectM;
@@ -8,7 +8,7 @@ using System.Collections;
 using Unity.Entities;
 using UnityEngine;
 
-namespace Unsheathed.Patches;
+namespace Bloodcraft.Patches;
 
 /* they last forever with duration over base so not touching for now
 [HarmonyPatch]

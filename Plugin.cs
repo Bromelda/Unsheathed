@@ -5,10 +5,10 @@ using HarmonyLib;
 using System.Reflection;
 using UnityEngine;
 using VampireCommandFramework;
-using static Unsheathed.Services.ConfigService.ConfigInitialization;
+using static Bloodcraft.Services.ConfigService.ConfigInitialization;
 
 
-namespace Unsheathed;
+namespace Bloodcraft;
 
 [BepInPlugin(MyPluginInfo.PLUGIN_GUID, MyPluginInfo.PLUGIN_NAME, MyPluginInfo.PLUGIN_VERSION)]
 internal class Plugin : BasePlugin
@@ -23,7 +23,7 @@ internal class Plugin : BasePlugin
 
         if (Application.productName != "VRisingServer")
         {
-            LogInstance.LogInfo("Unsheathed is a server mod and will not continue loading on the client; this is not an error, and likely just means you're using ServerLaunchFix in which case you may disregard this");
+            LogInstance.LogInfo("Bloodcraft is a server mod and will not continue loading on the client; this is not an error, and likely just means you're using ServerLaunchFix in which case you may disregard this");
 
             return;
         }
@@ -40,7 +40,6 @@ internal class Plugin : BasePlugin
     public override bool Unload()
     {
         Config.Clear();
-
         _harmony.UnpatchSelf();
 
         return true;

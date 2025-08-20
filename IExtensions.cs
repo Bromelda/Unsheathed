@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using UnityEngine;
 
-namespace Unsheathed;
+namespace Bloodcraft;
 internal static class IExtensions
 {
     static readonly System.Random _random = new();

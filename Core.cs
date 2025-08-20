@@ -1,7 +1,16 @@
 
-using BepInEx.Configuration;
 using BepInEx.Logging;
 using BepInEx.Unity.IL2CPP.Utils.Collections;
+
+using Bloodcraft.Patches;
+using Bloodcraft.Resources;
+using Bloodcraft.Services;
+
+
+
+
+
+using Bloodcraft.Utilities;
 using Il2CppInterop.Runtime;
 using ProjectM;
 using ProjectM.Physics;
@@ -11,15 +20,10 @@ using System.Collections;
 using Unity.Collections;
 using Unity.Entities;
 using UnityEngine;
-using Unsheathed.Interfaces;
-using Unsheathed.Patches;
-using Unsheathed.Resources;
-using Unsheathed.Services;
-using Unsheathed.Utilities;
-using static Unsheathed.Utilities.EntityQueries;
+using static Bloodcraft.Utilities.EntityQueries;
 using ComponentType = Unity.Entities.ComponentType;
 
-namespace Unsheathed;
+namespace Bloodcraft;
 internal static class Core
 {
     public static World Server { get; } = GetServerWorld() ?? throw new Exception("There is no Server world!");
@@ -30,9 +34,6 @@ internal static class Core
     public static double ServerTime => ServerGameManager.ServerTime;
     public static double DeltaTime => ServerGameManager.DeltaTime;
     public static ManualLogSource Log => Plugin.LogInstance;
-
-
-    
 
     public static void ApplyEquipBuff(Entity entity, int groupGuid, int slot = 1)
     {
@@ -64,12 +65,19 @@ internal static class Core
         PrefabGUIDs.Buff_Gloomrot_Voltage_Return,
         PrefabGUIDs.Buff_Militia_Fabian_Return
     ];
+
+   
+
+   
+
+   
+    static readonly bool _classes = ConfigService.ClassSystem;
   
    
    
-  
     
-   
+
+  
     public static byte[] NEW_SHARED_KEY { get; set; }
 
     public static bool _initialized = false;
@@ -80,7 +88,55 @@ internal static class Core
         NEW_SHARED_KEY = Convert.FromBase64String(SecretManager.GetNewSharedKey());
         // string hexString = SecretManager.GetNewSharedKey();
         // NEW_SHARED_KEY = [..Enumerable.Range(0, hexString.Length / 2).Select(i => Convert.ToByte(hexString.Substring(i * 2, 2), 16))];
+
+        if (!ComponentRegistry._initialized) ComponentRegistry.Initialize();
+
      
+        _ = new LocalizationService();
+       
+
+      
+
+       
+
+       
+
+        if (ConfigService.ClassSystem)
+        {
+            // Configuration.InitializeClassPassiveBuffs();
+            Configuration.GetClassSpellCooldowns();
+           
+        }
+
+       
+
+      
+
+       
+
+        
+
+       
+           
+
+       
+        ModifyPrefabs();
+      
+
+        try
+        {
+            ServerGameBalanceSettings = ServerGameBalanceSettings.Get(SystemService.ServerGameSettingsSystem._ServerBalanceSettings);
+           
+        }
+        catch (Exception e)
+        {
+            Log.LogWarning($"Error getting attribute soft caps: {e}");
+        }
+
+       
+
+        _initialized = true;
+        DebugLoggerPatch._initialized = true;
     }
     static World GetServerWorld()
     {
@@ -143,26 +199,23 @@ internal static class Core
 
         return addItemSettings;
     }
+    
    
     static void ModifyPrefabs()
     {
        
-       
-        {
-            if (SystemService.PrefabCollectionSystem._PrefabGuidToEntityMap.TryGetValue(Buffs.BonusStatsBuff, out Entity prefabEntity))
-            {
-                prefabEntity.Add<ScriptSpawn>();
 
-                if (prefabEntity.TryGetBuffer<ModifyUnitStatBuff_DOTS>(out var buffer))
-                {
-                    buffer.Clear();
-                }
-
-                // Buff_ApplyBuffOnDamageTypeDealt_DataShared
-            }
-        }
        
-        if (ConfigService.SpiritArsenal)
+
+       
+
+        
+
+       
+
+            
+
+        if (ConfigService.TwilightArsenal)
         {
 
             if (SystemService.PrefabCollectionSystem._PrefabGuidToEntityMap.TryGetValue(PrefabGUIDs.Item_Weapon_FishingPole_T01, out Entity prefabEntity))
@@ -393,7 +446,7 @@ internal static class Core
                     buffer.Add(new ReplaceAbilityOnSlotBuff
                     {
                         Slot = 0,
-                        NewGroupId = PrefabGUIDs.AB_Vampire_Sword_Primary_MeleeAttack_AbilityGroup,
+                        NewGroupId = PrefabGUIDs.AB_Militia_Scribe_RazorParchment_AbilityGroup,
                         CopyCooldown = true,
                         Priority = 0
                     });
@@ -405,11 +458,11 @@ internal static class Core
                     buffer.Add(new ReplaceAbilityOnSlotBuff
                     {
                         Slot = 1,
-                        NewGroupId = PrefabGUIDs.AB_Vampire_Dracula_SwordThrow_Abilitygroup,
+                        NewGroupId = PrefabGUIDs.AB_Militia_Scribe_InkFuel_AbilityGroup,
                         CopyCooldown = true,
                         Priority = 0
                     });
-                    AbilityRunScriptsSystemPatch.AddWeaponAbility(PrefabGUIDs.AB_Vampire_Dracula_SwordThrow_Abilitygroup, 8); // 0 = spell index
+                    AbilityRunScriptsSystemPatch.AddWeaponAbility(PrefabGUIDs.AB_Militia_Scribe_InkFuel_AbilityGroup, 8); // 0 = spell index
 
 
                     // WeaponE - slot 2
@@ -417,11 +470,11 @@ internal static class Core
                     buffer.Add(new ReplaceAbilityOnSlotBuff
                     {
                         Slot = 4,
-                        NewGroupId = PrefabGUIDs.AB_Vampire_Dracula_EtherialSword_Abilitygroup,
+                        NewGroupId = PrefabGUIDs.AB_Undead_CursedSmith_Summon_WeaponSword_AbilityGroup,
                         CopyCooldown = true,
                         Priority = 0
                     });
-                    AbilityRunScriptsSystemPatch.AddWeaponAbility(PrefabGUIDs.AB_Vampire_Dracula_EtherialSword_Abilitygroup, 15); // 0 = spell index
+                    AbilityRunScriptsSystemPatch.AddWeaponAbility(PrefabGUIDs.AB_Undead_CursedSmith_Summon_WeaponSword_AbilityGroup, 15); // 0 = spell index
 
                 }
             }
@@ -871,7 +924,6 @@ internal static class Core
     }
 
    
-    
    
     static bool IsWeaponPrimaryProjectile(string prefabName, WeaponType weaponType)
     {
@@ -904,5 +956,3 @@ public struct NativeAccessor<T>(NativeArray<T> array) : IDisposable where T : un
     public NativeArray<T>.Enumerator GetEnumerator() => _array.GetEnumerator();
     public void Dispose() => _array.Dispose();
 }
-
-

@@ -5,7 +5,7 @@ using System.Text.RegularExpressions;
 
 
 
-namespace Unsheathed.Services;
+namespace Bloodcraft.Services;
 internal static class ConfigService
 {
     static readonly Lazy<string> _languageLocalization = new(() => GetConfigValue<string>("LanguageLocalization"));
@@ -13,11 +13,118 @@ internal static class ConfigService
 
    
 
-    static readonly Lazy<bool> _spiritArsenal = new(() => GetConfigValue<bool>("SpiritArsenal"));
-    public static bool SpiritArsenal => _spiritArsenal.Value;
-  
+    static readonly Lazy<bool> _twilightArsenal = new(() => GetConfigValue<bool>("TwilightArsenal"));
+    public static bool TwilightArsenal => _twilightArsenal.Value;
 
    
+
+    
+
+    static readonly Lazy<bool> _unarmedSlots = new(() => GetConfigValue<bool>("UnarmedSlots"));
+    public static bool UnarmedSlots => _unarmedSlots.Value;
+
+   
+
+    static readonly Lazy<float> _maxHealth = new(() => GetConfigValue<float>("MaxHealth"));
+    public static float MaxHealth => _maxHealth.Value;
+
+    static readonly Lazy<float> _movementSpeed = new(() => GetConfigValue<float>("MovementSpeed"));
+    public static float MovementSpeed => _movementSpeed.Value;
+
+    static readonly Lazy<float> _primaryAttackSpeed = new(() => GetConfigValue<float>("PrimaryAttackSpeed"));
+    public static float PrimaryAttackSpeed => _primaryAttackSpeed.Value;
+
+    static readonly Lazy<float> _physicalLifeLeech = new(() => GetConfigValue<float>("PhysicalLifeLeech"));
+    public static float PhysicalLifeLeech => _physicalLifeLeech.Value;
+
+    static readonly Lazy<float> _spellLifeLeech = new(() => GetConfigValue<float>("SpellLifeLeech"));
+    public static float SpellLifeLeech => _spellLifeLeech.Value;
+
+    static readonly Lazy<float> _primaryLifeLeech = new(() => GetConfigValue<float>("PrimaryLifeLeech"));
+    public static float PrimaryLifeLeech => _primaryLifeLeech.Value;
+
+    static readonly Lazy<float> _physicalPower = new(() => GetConfigValue<float>("PhysicalPower"));
+    public static float PhysicalPower => _physicalPower.Value;
+
+    static readonly Lazy<float> _spellPower = new(() => GetConfigValue<float>("SpellPower"));
+    public static float SpellPower => _spellPower.Value;
+
+    static readonly Lazy<float> _physicalCritChance = new(() => GetConfigValue<float>("PhysicalCritChance"));
+    public static float PhysicalCritChance => _physicalCritChance.Value;
+
+    static readonly Lazy<float> _physicalCritDamage = new(() => GetConfigValue<float>("PhysicalCritDamage"));
+    public static float PhysicalCritDamage => _physicalCritDamage.Value;
+
+    static readonly Lazy<float> _spellCritChance = new(() => GetConfigValue<float>("SpellCritChance"));
+    public static float SpellCritChance => _spellCritChance.Value;
+
+    static readonly Lazy<float> _spellCritDamage = new(() => GetConfigValue<float>("SpellCritDamage"));
+    public static float SpellCritDamage => _spellCritDamage.Value;
+
+   
+    static readonly Lazy<bool> _bloodQualityBonus = new(() => GetConfigValue<bool>("BloodQualityBonus"));
+    public static bool BloodQualityBonus => _bloodQualityBonus.Value;
+
+   
+
+   
+
+    static readonly Lazy<float> _healingReceived = new(() => GetConfigValue<float>("HealingReceived"));
+    public static float HealingReceived => _healingReceived.Value;
+
+    static readonly Lazy<float> _damageReduction = new(() => GetConfigValue<float>("DamageReduction"));
+    public static float DamageReduction => _damageReduction.Value;
+
+    static readonly Lazy<float> _physicalResistance = new(() => GetConfigValue<float>("PhysicalResistance"));
+    public static float PhysicalResistance => _physicalResistance.Value;
+
+    static readonly Lazy<float> _spellResistance = new(() => GetConfigValue<float>("SpellResistance"));
+    public static float SpellResistance => _spellResistance.Value;
+
+    static readonly Lazy<float> _resourceYield = new(() => GetConfigValue<float>("ResourceYield"));
+    public static float ResourceYield => _resourceYield.Value;
+
+    static readonly Lazy<float> _reducedBloodDrain = new(() => GetConfigValue<float>("ReducedBloodDrain"));
+    public static float ReducedBloodDrain => _reducedBloodDrain.Value;
+
+    static readonly Lazy<float> _spellCooldownRecoveryRate = new(() => GetConfigValue<float>("SpellCooldownRecoveryRate"));
+    public static float SpellCooldownRecoveryRate => _spellCooldownRecoveryRate.Value;
+
+    static readonly Lazy<float> _weaponCooldownRecoveryRate = new(() => GetConfigValue<float>("WeaponCooldownRecoveryRate"));
+    public static float WeaponCooldownRecoveryRate => _weaponCooldownRecoveryRate.Value;
+
+    static readonly Lazy<float> _ultimateCooldownRecoveryRate = new(() => GetConfigValue<float>("UltimateCooldownRecoveryRate"));
+    public static float UltimateCooldownRecoveryRate => _ultimateCooldownRecoveryRate.Value;
+
+    static readonly Lazy<float> _minionDamage = new(() => GetConfigValue<float>("MinionDamage"));
+    public static float MinionDamage => _minionDamage.Value;
+
+    static readonly Lazy<float> _abilityAttackSpeed = new(() => GetConfigValue<float>("AbilityAttackSpeed"));
+    public static float AbilityAttackSpeed => _abilityAttackSpeed.Value;
+
+    static readonly Lazy<float> _corruptionDamageReduction = new(() => GetConfigValue<float>("CorruptionDamageReduction"));
+    public static float CorruptionDamageReduction => _corruptionDamageReduction.Value;
+
+   
+
+    static readonly Lazy<bool> _classSystem = new(() => GetConfigValue<bool>("ClassSystem"));
+    public static bool ClassSystem => _classSystem.Value;
+
+    // static readonly Lazy<bool> _lockedSynergies = new(() => GetConfigValue<bool>("LockedSynergies"));
+    // public static bool LockedSynergies => _lockedSynergies.Value;
+
+    static readonly Lazy<bool> _classOnHitEffects = new(() => GetConfigValue<bool>("ClassOnHitEffects"));
+    public static bool ClassOnHitEffects => _classOnHitEffects.Value;
+
+    static readonly Lazy<float> _onHitProcChance = new(() => GetConfigValue<float>("OnHitProcChance"));
+    public static float OnHitProcChance => _onHitProcChance.Value;
+
+  
+
+    static readonly Lazy<int> _defaultClassSpell = new(() => GetConfigValue<int>("DefaultClassSpell"));
+    public static int DefaultClassSpell => _defaultClassSpell.Value;
+
+  
     public static class ConfigInitialization
     {
         static readonly Regex _regex = new(@"^\[(.+)\]$");
@@ -29,7 +136,9 @@ internal static class ConfigService
             return
             [
             Path.Combine(BepInEx.Paths.ConfigPath, MyPluginInfo.PLUGIN_NAME),                                     // 0
-            
+           
+            Path.Combine(BepInEx.Paths.ConfigPath, MyPluginInfo.PLUGIN_NAME, "PlayerBools")                     // 9
+          
             ];
         });
         public static List<string> DirectoryPaths => _directoryPaths.Value;
@@ -37,9 +146,7 @@ internal static class ConfigService
         public static readonly List<string> SectionOrder =
         [
             "General",
-            "SpiritArsenal"
-  
-           
+            "Classes"
         ];
         public class ConfigEntryDefinition(string section, string key, object defaultValue, string description)
         {
@@ -51,9 +158,48 @@ internal static class ConfigService
         public static readonly List<ConfigEntryDefinition> ConfigEntries =
         [
             new ConfigEntryDefinition("General", "LanguageLocalization", "English", "The language localization for prefabs displayed to users. English by default. Options: Brazilian, English, French, German, Hungarian, Italian, Japanese, Koreana, Latam, Polish, Russian, SimplifiedChinese, Spanish, TraditionalChinese, Thai, Turkish, Vietnamese"),
+           
+            new ConfigEntryDefinition("General", "TwilightArsenal", false, "Enable or disable experimental ability replacements on shadow weapons (currently just axes but like cosplaying as Thor with two mjolnirs)."),
+           
+            new ConfigEntryDefinition("Expertise", "UnarmedSlots", false, "Enable or disable the ability to use extra unarmed spell slots."),
+            
+            new ConfigEntryDefinition("Expertise", "MaxHealth", 250f, "The base cap for maximum health."),
+            new ConfigEntryDefinition("Expertise", "MovementSpeed", 0.25f, "The base cap for movement speed."),
+            new ConfigEntryDefinition("Expertise", "PrimaryAttackSpeed", 0.10f, "The base cap for primary attack speed."),
+            new ConfigEntryDefinition("Expertise", "PhysicalLifeLeech", 0.10f, "The base cap for physical life leech."),
+            new ConfigEntryDefinition("Expertise", "SpellLifeLeech", 0.10f, "The base cap for spell life leech."),
+            new ConfigEntryDefinition("Expertise", "PrimaryLifeLeech", 0.15f, "The base cap for primary life leech."),
+            new ConfigEntryDefinition("Expertise", "PhysicalPower", 20f, "The base cap for physical power."),
+            new ConfigEntryDefinition("Expertise", "SpellPower", 10f, "The base cap for spell power."),
+            new ConfigEntryDefinition("Expertise", "PhysicalCritChance", 0.10f, "The base cap for physical critical strike chance."),
+            new ConfigEntryDefinition("Expertise", "PhysicalCritDamage", 0.50f, "The base cap for physical critical strike damage."),
+            new ConfigEntryDefinition("Expertise", "SpellCritChance", 0.10f, "The base cap for spell critical strike chance."),
+            new ConfigEntryDefinition("Expertise", "SpellCritDamage", 0.50f, "The base cap for spell critical strike damage."),
 
-            new ConfigEntryDefinition("General", "SpiritArsenal", true, "Enable or disable experimental ability replacements on weapons."),
+           
+            new ConfigEntryDefinition("Legacies", "HealingReceived", 0.15f, "The base cap for healing received."),
+            new ConfigEntryDefinition("Legacies", "DamageReduction", 0.05f, "The base cap for damage reduction."),
+            new ConfigEntryDefinition("Legacies", "PhysicalResistance", 0.10f, "The base cap for physical resistance."),
+            new ConfigEntryDefinition("Legacies", "SpellResistance", 0.10f, "The base cap for spell resistance."),
+            new ConfigEntryDefinition("Legacies", "ResourceYield", 0.25f, "The base cap for resource yield."),
+            new ConfigEntryDefinition("Legacies", "ReducedBloodDrain", 0.5f, "The base cap for reduced blood drain."),
+            new ConfigEntryDefinition("Legacies", "SpellCooldownRecoveryRate", 0.10f, "The base cap for spell cooldown recovery rate."),
+            new ConfigEntryDefinition("Legacies", "WeaponCooldownRecoveryRate", 0.10f, "The base cap for weapon cooldown recovery rate."),
+            new ConfigEntryDefinition("Legacies", "UltimateCooldownRecoveryRate", 0.20f, "The base cap for ultimate cooldown recovery rate."),
+            new ConfigEntryDefinition("Legacies", "MinionDamage", 0.25f, "The base cap for minion damage."),
+            new ConfigEntryDefinition("Legacies", "AbilityAttackSpeed", 0.10f, "The base cap for ability attack speed."),
+            new ConfigEntryDefinition("Legacies", "CorruptionDamageReduction", 0.10f, "The base cap for corruption damage reduction."),
 
+           
+            new ConfigEntryDefinition("Classes", "ClassSystem", false, "Enable classes without synergy restrictions."),
+           
+            new ConfigEntryDefinition("Classes", "ClassOnHitEffects", true, "Enable or disable class spell school on hit effects (chance to proc respective debuff from spell school when dealing damage (leech, chill, condemn etc), second tier effect will proc if first is already present on target."),
+            new ConfigEntryDefinition("Classes", "OnHitProcChance", 0.075f, "The chance for a class effect to proc on hit."),
+           
+
+            // need to revamp these to some degree and add new spells etc.
+            new ConfigEntryDefinition("Classes", "DefaultClassSpell", -433204738, "Default spell (veil of shadow) available to all classes.")
+           
         ];
         public static void InitializeConfig()
         {
@@ -159,7 +305,8 @@ internal static class ConfigService
                 }
             }
 
-            
+            var configFile = Path.Combine(BepInEx.Paths.ConfigPath, $"{MyPluginInfo.PLUGIN_GUID}.cfg");
+            if (File.Exists(configFile)) OrganizeConfig(configFile);
         }
         static void UpdateConfigProperty(string key, object configEntry)
         {
@@ -178,8 +325,6 @@ internal static class ConfigService
                 }
             }
         }
-        
-        
         static ConfigEntry<T> InitConfigEntry<T>(string section, string key, T defaultValue, string description)
         {
             // Bind the configuration entry with the default value in the new section
@@ -281,7 +426,6 @@ internal static class ConfigService
 
             return entry;
         }
-        
         static void CreateDirectory(string path)
         {
             if (!Directory.Exists(path))

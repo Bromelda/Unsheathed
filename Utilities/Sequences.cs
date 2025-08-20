@@ -1,8 +1,8 @@
-﻿using Unsheathed.Resources;
+﻿using Bloodcraft.Resources;
 using ProjectM;
 using Unity.Entities;
 
-namespace Unsheathed.Utilities;
+namespace Bloodcraft.Utilities;
 internal static class Sequences
 {
     public struct SequenceRequest

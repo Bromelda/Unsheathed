@@ -59,9 +59,9 @@ using Unity.Physics.Systems;
 using Unity.Rendering;
 using Unity.Scenes;
 using Unity.Transforms;
-using static Unsheathed.Utilities.EntityQueries;
+using static Bloodcraft.Utilities.EntityQueries;
 
-namespace Unsheathed.Utilities;
+namespace Bloodcraft.Utilities;
 internal static class EntityQueries
 {
     static EntityManager EntityManager => Core.EntityManager;

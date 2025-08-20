@@ -1,19 +1,15 @@
-﻿using Unsheathed.Services;
+﻿using Bloodcraft.Services;
 using HarmonyLib;
 using UnityEngine;
 
-namespace Unsheathed.Patches;
+namespace Bloodcraft.Patches;
 
 [HarmonyPatch]
 internal class DebugLoggerPatch
 {
     public static bool _initialized = false;
+   
 
-   
-}
-
-   
-   
     /*
     const string TYPE_INDEX_ERROR = "typeIndexInArchetype was -1";
 
@@ -33,4 +29,4 @@ internal class DebugLoggerPatch
         return true;
     }
     */
-
+}

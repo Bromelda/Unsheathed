@@ -1,4 +1,4 @@
-using Unsheathed.Resources;
+using Bloodcraft.Resources;
 using Il2CppInterop.Runtime;
 using ProjectM;
 using ProjectM.Network;
@@ -8,9 +8,9 @@ using System.Text.Json;
 using Unity.Collections;
 using Unity.Entities;
 using VampireCommandFramework;
-using static Unsheathed.Resources.PrefabNames;
+using static Bloodcraft.Resources.PrefabNames;
 
-namespace Unsheathed.Services;
+namespace Bloodcraft.Services;
 internal class LocalizationService // the bones are from KindredCommands, ty Odjit c:
 {
     struct Code

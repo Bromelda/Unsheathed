@@ -1,6 +1,6 @@
-﻿using Unsheathed.Patches;
-using Unsheathed.Resources;
-using Unsheathed.Services;
+﻿using Bloodcraft.Patches;
+using Bloodcraft.Resources;
+using Bloodcraft.Services;
 using ProjectM;
 using ProjectM.Network;
 using ProjectM.Scripting;
@@ -8,7 +8,7 @@ using Stunlock.Core;
 using Unity.Collections;
 using Unity.Entities;
 
-namespace Unsheathed.Utilities;
+namespace Bloodcraft.Utilities;
 internal static class Buffs
 {
     static ServerGameManager ServerGameManager => Core.ServerGameManager;
@@ -78,7 +78,7 @@ internal static class Buffs
 
     public static readonly PrefabGUID BonusStatsBuff = PrefabGUIDs.SetBonus_AllLeech_T09;
     public static readonly PrefabGUID BonusPlayerStatsBuff = BonusStatsBuff;
-    public static readonly PrefabGUID BonusFamiliarStatsBuff = BonusStatsBuff;
+   
 
     static readonly Dictionary<PrefabGUID, int> _buffMaxStacks = [];
     public static bool TryApplyBuff(this Entity entity, PrefabGUID prefabGuid)
@@ -295,7 +295,7 @@ internal static class Buffs
             buffEntity.Remove<AmplifyBuff>();
         }
     }
-  
+    
     public static bool PlayerInCombat(this Entity entity)
     {
         if (entity.IsPlayer())
@@ -332,17 +332,8 @@ internal static class Buffs
         }
     }
 
-    static PrefabGUID _buffArenaActive = PrefabGUIDs.Buff_Arena_Active;
-    static PrefabGUID _buffDuelActive = PrefabGUIDs.Buff_Duel_Active;
-    public static bool IsDueling(this Entity playerCharacter)
-    {
-        if (playerCharacter.HasBuff(_buffArenaActive) || playerCharacter.HasBuff(_buffDuelActive))
-        {
-            return true;
-        }
-
-        return false;
-    }
+   
+   
     public static void RefreshStats(Entity entity)
     {
         ApplyBuffDebugEvent applyBuffDebugEvent = new()
@@ -361,42 +352,3 @@ internal static class Buffs
     }
 }
 
-/*
-if (buffEntity.Has<CreateGameplayEventsOnSpawn>())
-{
-    CreateGameplayEventsOnSpawn createGameplayEventsOnSpawn = buffEntity.ReadBuffer<CreateGameplayEventsOnSpawn>()[0];
-    GameplayEventId eventId = createGameplayEventsOnSpawn.EventId;
-    GameplayEventTarget eventTarget = createGameplayEventsOnSpawn.Target;
-
-    buffEntity.Remove<CreateGameplayEventsOnSpawn>();
-    if (!buffEntity.Has<CreateGameplayEventsOnDestroy>())
-    {
-        var createGameplayEventsOnDestroyBuffer = EntityManager.AddBuffer<CreateGameplayEventsOnDestroy>(buffEntity);
-
-        CreateGameplayEventsOnDestroy createGameplayEventsOnDestroy = new()
-        {
-            EventId = eventId,
-            Target = eventTarget,
-            SpecificDestroyReason = false,
-            DestroyReason = DestroyReason.Default
-        };
-
-        createGameplayEventsOnDestroyBuffer.Add(createGameplayEventsOnDestroy);
-
-        var spawnPrefabOnGameplayEventBuffer = buffEntity.ReadBuffer<SpawnPrefabOnGameplayEvent>();
-
-        SpawnPrefabOnGameplayEvent spawnPrefabOnGameplayEvent = spawnPrefabOnGameplayEventBuffer[0];
-        spawnPrefabOnGameplayEvent.SpawnPrefab = ExoFormExitBuff;
-
-        spawnPrefabOnGameplayEventBuffer[0] = spawnPrefabOnGameplayEvent;
-    }
-}
-
-ModifyTargetHUDBuff modifyTargetHUDBuff = new()
-{
-    Height = 1.25f,
-    CharacterHUDHeightModId = ModificationId.Empty
-};
-
-buffEntity.Write(modifyTargetHUDBuff);
-*/

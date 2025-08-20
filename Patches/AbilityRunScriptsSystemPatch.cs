@@ -1,6 +1,6 @@
-﻿using Unsheathed.Resources;
-using Unsheathed.Services;
-using Unsheathed.Utilities;
+﻿using Bloodcraft.Resources;
+using Bloodcraft.Services;
+using Bloodcraft.Utilities;
 using HarmonyLib;
 using ProjectM;
 using ProjectM.Network;
@@ -10,30 +10,25 @@ using Unity.Collections;
 using Unity.Entities;
 
 
-namespace Unsheathed.Patches;
+namespace Bloodcraft.Patches;
 
 [HarmonyPatch]
 internal static class AbilityRunScriptsSystemPatch
 {
     static ServerGameManager ServerGameManager => Core.ServerGameManager;
 
+    static readonly bool _classes = ConfigService.ClassSystem;
    
 
-    
-    const float Weapon_COOLDOWN_FACTOR = 1f; 
-
-    
-    static readonly bool _spiritArsenal = ConfigService.SpiritArsenal;
-
-    
- 
+    const float Spell_COOLDOWN_FACTOR = 8f;
+    const float Weapon_COOLDOWN_FACTOR = 1f;
+    public static IReadOnlyDictionary<PrefabGUID, int> ClassSpells => _classSpells;
+    static readonly Dictionary<PrefabGUID, int> _classSpells = [];
 
     public static IReadOnlyDictionary<PrefabGUID, int> WeaponAbility => _weaponAbility;
     static readonly Dictionary<PrefabGUID, int> _weaponAbility = [];
 
-    static readonly PrefabGUID _useWaypointAbilityGroup = PrefabGUIDs.AB_Interact_UseWaypoint_AbilityGroup;
-    static readonly PrefabGUID _useCastleWaypointAbilityGroup = PrefabGUIDs.AB_Interact_UseWaypoint_Castle_AbilityGroup;
-    static readonly PrefabGUID _vanishBuff = Buffs.VanishBuff;
+   
 
 
     [HarmonyPatch(typeof(AbilityRunScriptsSystem), nameof(AbilityRunScriptsSystem.OnUpdate))]
@@ -41,8 +36,7 @@ internal static class AbilityRunScriptsSystemPatch
     static void OnUpdatePrefix(AbilityRunScriptsSystem __instance)
     {
         if (!Core._initialized) return;
-          else if (!_spiritArsenal) return;
-       
+        else if (!_classes) return;
 
         // NativeArray<Entity> entities = __instance._OnCastEndedQuery.ToEntityArray(Allocator.Temp);
         NativeArray<AbilityPostCastEndedEvent> postCastEndedEvents = __instance._OnPostCastEndedQuery.ToComponentDataArray<AbilityPostCastEndedEvent>(Allocator.Temp);
@@ -55,8 +49,15 @@ internal static class AbilityRunScriptsSystemPatch
                 else if (postCastEndedEvent.Character.IsPlayer())
                 {
                     PrefabGUID prefabGuid = postCastEndedEvent.AbilityGroup.GetPrefabGuid();
-            
-               if (WeaponAbility.ContainsKey(prefabGuid))
+
+                   
+                    
+                    if (ClassSpells.ContainsKey(prefabGuid))
+                    {
+                        float cooldown = ClassSpells[prefabGuid].Equals(0) ? Spell_COOLDOWN_FACTOR : (ClassSpells[prefabGuid] + 1) * Spell_COOLDOWN_FACTOR;
+                        ServerGameManager.SetAbilityGroupCooldown(postCastEndedEvent.Character, prefabGuid, cooldown);
+                    }
+                    else if (WeaponAbility.ContainsKey(prefabGuid))
                     {
                         float cooldown = WeaponAbility[prefabGuid].Equals(0) ? Weapon_COOLDOWN_FACTOR : (WeaponAbility[prefabGuid] + 1) * Weapon_COOLDOWN_FACTOR;
                         ServerGameManager.SetAbilityGroupCooldown(postCastEndedEvent.Character, prefabGuid, cooldown);
@@ -70,12 +71,15 @@ internal static class AbilityRunScriptsSystemPatch
         }
     }
 
-   
+    
+    public static void AddClassSpell(PrefabGUID prefabGuid, int spellIndex)
+    {
+        _classSpells.TryAdd(prefabGuid, spellIndex);
+    }
     public static void AddWeaponAbility(PrefabGUID prefabGuid, int spellIndex)
     {
         _weaponAbility.TryAdd(prefabGuid, spellIndex);
     }
 
    
-
 }
