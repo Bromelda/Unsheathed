@@ -1,4 +1,4 @@
-﻿using Il2CppInterop.Runtime;
+using Il2CppInterop.Runtime;
 using ProjectM;
 using ProjectM.CastleBuilding;
 using ProjectM.Gameplay.Systems;
@@ -9,7 +9,7 @@ using ProjectM.Shared.Systems;
 using ProjectM.Tiles;
 using Unity.Entities;
 
-namespace Unsheathed.Services;
+namespace Unshseathed.Services;
 internal class SystemService(World world)
 {
     readonly World _world = world ?? throw new ArgumentNullException(nameof(world));
