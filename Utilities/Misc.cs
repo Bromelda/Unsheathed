@@ -1,5 +1,5 @@
-﻿using Unsheathed.Resources;
-using Unsheathed.Services;
+using Unshseathed.Resources;
+using Unshseathed.Services;
 using ProjectM;
 using ProjectM.Network;
 using ProjectM.Scripting;
@@ -10,7 +10,8 @@ using Unity.Entities;
 using VampireCommandFramework;
 
 
-namespace Unsheathed.Utilities;
+
+namespace Unshseathed.Utilities;
 internal static class Misc
 {
     static EntityManager EntityManager => Core.EntityManager;
@@ -70,15 +71,15 @@ internal static class Misc
         }
     }
 
-   
   
-
    
 
    
+
+    
+
    
-       
-      
+   
     public static string FormatTimespan(TimeSpan timeSpan)
     {
         string timeString = timeSpan.ToString(@"mm\:ss");
@@ -167,9 +168,98 @@ internal static class Misc
         return false;
     }
 
-   
-   
-   
+    /*
+    public static bool TryGetStatTypeFromPrefabName(string rawPrefabString, out UnitStatType statType)
+    {
+        statType = default;
+
+        if (string.IsNullOrWhiteSpace(rawPrefabString))
+            return false;
+
+        // Step 1: Extract the filename portion (remove 'PrefabGuid(...)' etc.)
+        string baseName = rawPrefabString.Split(' ', StringSplitOptions.RemoveEmptyEntries).FirstOrDefault();
+        if (baseName is null)
+            return false;
+
+        // Step 2: Strip known prefixes and suffixes
+        baseName = baseName.Replace("StatMod_", "", StringComparison.CurrentCultureIgnoreCase)
+                           .Replace("Unique_", "", StringComparison.CurrentCultureIgnoreCase);
+
+        // Remove suffixes like "_Low", "_Mid", "_High"
+        string[] tierSuffixes = ["_Low", "_Mid", "_High"];
+        foreach (var suffix in tierSuffixes)
+        {
+            if (baseName.EndsWith(suffix, StringComparison.CurrentCultureIgnoreCase))
+            {
+                baseName = baseName[..^suffix.Length];
+                break;
+            }
+        }
+
+        // Step 3: Try to parse directly
+        if (Enum.TryParse(baseName, ignoreCase: true, out statType))
+            return true;
+
+        // Step 4: Fallback alias matching
+        switch (baseName.ToLowerInvariant())
+        {
+            case "attackspeed":
+                statType = UnitStatType.PrimaryAttackSpeed;
+                return true;
+            case "criticalstrikephysical":
+                statType = UnitStatType.PhysicalCriticalStrikeChance;
+                return true;
+            case "criticalstrikephysicalpower":
+                statType = UnitStatType.PhysicalCriticalStrikeDamage;
+                return true;
+            case "criticalstrikespellpower":
+                statType = UnitStatType.SpellCriticalStrikeDamage;
+                return true;
+            case "criticalstrikespells":
+                statType = UnitStatType.SpellCriticalStrikeChance;
+                return true;
+            case "criticalstrikespell":
+                statType = UnitStatType.SpellCriticalStrikeChance;
+                return true;
+            case "spellcooldownreduction":
+                statType = UnitStatType.SpellCooldownRecoveryRate;
+                return true;
+            case "weaponcooldownreduction":
+                statType = UnitStatType.WeaponCooldownRecoveryRate;
+                return true;
+            case "spellleech":
+                statType = UnitStatType.SpellLifeLeech;
+                return true;
+            case "vampiredamage":
+                statType = UnitStatType.DamageVsVampires;
+                return true;
+            default:
+                Core.Log.LogWarning($"Unmapped stat mod prefab! ('{rawPrefabString}' → parsed '{baseName}')");
+                return false;
+        }
+    }
+    */
+  
+    public static void ReplySCTDetails(ChatCommandContext ctx)
+    {
+        ulong steamId = ctx.User.PlatformId;
+
+        StringBuilder sb = new();
+        sb.AppendLine("<color=#FFC0CB>SCT Options</color>:");
+
+      
+       
+        {
+            
+
+           
+            {
+                
+            }
+        }
+
+        LocalizationService.HandleReply(ctx, sb.ToString());
+    }
     public static void GiveOrDropItem(User user, Entity playerCharacter, PrefabGUID itemType, int amount)
     {
         var itemDataHashMap = GameDataSystem.ItemHashLookupMap;
@@ -218,5 +308,6 @@ internal static class Misc
         }
     }
 
-  
+   
 }
+
