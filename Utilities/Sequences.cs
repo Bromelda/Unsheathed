@@ -1,8 +1,8 @@
-﻿using Unsheathed.Resources;
+using Unshseathed.Resources;
 using ProjectM;
 using Unity.Entities;
 
-namespace Unsheathed.Utilities;
+namespace Unshseathed.Utilities;
 internal static class Sequences
 {
     public struct SequenceRequest
