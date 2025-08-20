@@ -1,4 +1,4 @@
-using Unsheathed.Services;
+using Unshseathed.Services;
 using Il2CppInterop.Runtime;
 using ProjectM;
 using ProjectM.Gameplay.Systems;
@@ -10,10 +10,10 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
-using static Unsheathed.Services.LocalizationService;
+using static Unshseathed.Services.LocalizationService;
 
 
-namespace Unsheathed;
+namespace Unshseathed;
 internal static class VExtensions
 {
     static EntityManager EntityManager => Core.EntityManager;
