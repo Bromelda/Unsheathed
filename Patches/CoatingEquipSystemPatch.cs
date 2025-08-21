@@ -1,4 +1,4 @@
-﻿using Unsheathed.Interfaces;
+﻿
 using Unsheathed.Services;
 
 using HarmonyLib;

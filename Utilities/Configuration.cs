@@ -1,15 +1,15 @@
 ﻿
-using Unshseathed.Patches;
-using Unshseathed.Services;
+using Unsheathed.Patches;
+using Unsheathed.Services;
 
 
 using ProjectM;
 using Stunlock.Core;
 
-namespace Unshseathed.Utilities;
+namespace Unsheathed.Utilities;
 internal static class Configuration
 {
-   
+
     public static List<int> ParseIntegersFromString(string configString)
     {
         if (string.IsNullOrEmpty(configString))
@@ -17,7 +17,7 @@ internal static class Configuration
             return [];
         }
 
-        return [..configString.Split(',').Select(int.Parse)];
+        return [.. configString.Split(',').Select(int.Parse)];
     }
     public static List<T> ParseEnumsFromString<T>(string configString) where T : struct, Enum
     {
@@ -36,17 +36,17 @@ internal static class Configuration
 
         return result;
     }
-   
-   
+
+
     public static void GetClassSpellCooldowns()
     {
-       
-        {
-            
 
-           
+        {
+
+
+
             {
-               
+
             }
         }
     }

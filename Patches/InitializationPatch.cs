@@ -1,7 +1,7 @@
 using HarmonyLib;
 using ProjectM.Gameplay.WarEvents;
 
-namespace Unshseathed.Patches;
+namespace Unsheathed.Patches;
 
 [HarmonyPatch]
 internal static class InitializationPatch

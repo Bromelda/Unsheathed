@@ -5,10 +5,10 @@ using HarmonyLib;
 using System.Reflection;
 using UnityEngine;
 using VampireCommandFramework;
-using static Unshseathed.Services.ConfigService.ConfigInitialization;
+using static Unsheathed.Services.ConfigService.ConfigInitialization;
 
 
-namespace Unshseathed;
+namespace Unsheathed;
 
 [BepInPlugin(MyPluginInfo.PLUGIN_GUID, MyPluginInfo.PLUGIN_NAME, MyPluginInfo.PLUGIN_VERSION)]
 internal class Plugin : BasePlugin
@@ -32,7 +32,7 @@ internal class Plugin : BasePlugin
         _harmony = Harmony.CreateAndPatchAll(Assembly.GetExecutingAssembly());
 
         InitializeConfig();
-       
+
         CommandRegistry.RegisterAll();
 
         Core.Log.LogInfo($"{MyPluginInfo.PLUGIN_NAME}[{MyPluginInfo.PLUGIN_VERSION}] loaded!");
@@ -45,5 +45,4 @@ internal class Plugin : BasePlugin
         return true;
     }
 }
-
 

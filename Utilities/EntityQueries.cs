@@ -159,7 +159,7 @@ internal static class EntityQueries
                 }
                 catch (Exception)
                 {
-                   // Core.Log.LogWarning($"[QueryResultStream] Skipping chunkIndex - {chunkIndex}");
+                    // Core.Log.LogWarning($"[QueryResultStream] Skipping chunkIndex - {chunkIndex}");
                 }
 
                 if (results != null)
@@ -192,7 +192,7 @@ internal static class EntityQueries
                 results.Add(new QueryResult(entity, ComponentTypes, data));
             }
 
-            return [..results];
+            return [.. results];
         }
         public void Dispose()
         {

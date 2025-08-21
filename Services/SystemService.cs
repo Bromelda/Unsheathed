@@ -9,7 +9,8 @@ using ProjectM.Shared.Systems;
 using ProjectM.Tiles;
 using Unity.Entities;
 
-namespace Unshseathed.Services;
+
+namespace Unsheathed.Services;
 internal class SystemService(World world)
 {
     readonly World _world = world ?? throw new ArgumentNullException(nameof(world));

@@ -1,6 +1,6 @@
 ﻿
-using Unshseathed.Patches;
-using Unshseathed.Services;
+using Unsheathed.Patches;
+using Unsheathed.Services;
 using Il2CppInterop.Runtime;
 using ProjectM;
 using ProjectM.Gameplay.Systems;
@@ -18,10 +18,10 @@ using VampireCommandFramework;
 
 
 
-using static Unshseathed.Utilities.EntityQueries;
+using static Unsheathed.Utilities.EntityQueries;
 
 
-namespace Unshseathed.Utilities;
+namespace Unsheathed.Utilities;
 internal static class Classes
 {
     static EntityManager EntityManager => Core.EntityManager;
@@ -43,33 +43,33 @@ internal static class Classes
     static NativeParallelHashMap<PrefabGUID, ItemData> ItemLookup => SystemService.GameDataSystem.ItemHashLookupMap;
     static PrefabLookupMap _prefabLookupMap = PrefabCollectionSystem._PrefabLookupMap;
 
-   
 
-    
 
-   
+
+
+
 
     static readonly int[] _typeIndices = [0, 1];
 
-   
 
-    
-   
 
-   
 
-   
 
-   
-   
-   
-   
 
-    
 
-   
-  
-  
+
+
+
+
+
+
+
+
+
+
+
+
+
     static void RemoveNPCSpell(Entity character)
     {
         Entity buffEntity = Entity.Null;
@@ -143,7 +143,7 @@ internal static class Classes
         replaceBuffer.Add(buff);
         ServerGameManager.ModifyAbilityGroupOnSlot(buffEntity, character, 3, spellPrefabGUID);
     }
-   
+
     static string GetClassSpellName(PrefabGUID prefabGuid)
     {
         string prefabName = prefabGuid.GetLocalizedName();
@@ -154,12 +154,12 @@ internal static class Classes
 
         return prefabName;
     }
-   
 
-       
-   
-   
-   
+
+
+
+
+
     public static string FormatModifyUnitStatBuffer(Entity buffEntity)
     {
         if (buffEntity.TryGetBuffer<ModifyUnitStatBuff_DOTS>(out var buffer) && !buffer.IsEmpty)
@@ -172,11 +172,11 @@ internal static class Classes
                 float value = modifyUnitStatBuff.Value;
                 string formattedValue;
 
-               
+
                 {
-                   
+
                 }
-           
+
                 {
                     formattedValue = FormatPercentStatValue(value);
                 }
@@ -194,6 +194,6 @@ internal static class Classes
     {
         return (value * 100).ToString("F0") + "%";
     }
-    
-    
+
+
 }

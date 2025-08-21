@@ -1,3 +1,6 @@
+using Unsheathed.Resources;
+using Unsheathed.Services;
+using Unsheathed.Utilities;
 using HarmonyLib;
 using ProjectM;
 using ProjectM.Network;
@@ -7,7 +10,8 @@ using Unity.Collections;
 using Unity.Entities;
 
 
-namespace Unshseathed.Patches;
+
+namespace Unsheathed.Patches;
 
 [HarmonyPatch]
 internal static class AbilityRunScriptsSystemPatch
@@ -15,7 +19,7 @@ internal static class AbilityRunScriptsSystemPatch
     static ServerGameManager ServerGameManager => Core.ServerGameManager;
 
     static readonly bool _classes = ConfigService.ClassSystem;
-   
+
 
     const float Spell_COOLDOWN_FACTOR = 8f;
     const float Weapon_COOLDOWN_FACTOR = 1f;
@@ -25,7 +29,7 @@ internal static class AbilityRunScriptsSystemPatch
     public static IReadOnlyDictionary<PrefabGUID, int> WeaponAbility => _weaponAbility;
     static readonly Dictionary<PrefabGUID, int> _weaponAbility = [];
 
-   
+
 
 
     [HarmonyPatch(typeof(AbilityRunScriptsSystem), nameof(AbilityRunScriptsSystem.OnUpdate))]
@@ -47,8 +51,8 @@ internal static class AbilityRunScriptsSystemPatch
                 {
                     PrefabGUID prefabGuid = postCastEndedEvent.AbilityGroup.GetPrefabGuid();
 
-                   
-                    
+
+
                     if (ClassSpells.ContainsKey(prefabGuid))
                     {
                         float cooldown = ClassSpells[prefabGuid].Equals(0) ? Spell_COOLDOWN_FACTOR : (ClassSpells[prefabGuid] + 1) * Spell_COOLDOWN_FACTOR;
@@ -68,7 +72,7 @@ internal static class AbilityRunScriptsSystemPatch
         }
     }
 
-    
+
     public static void AddClassSpell(PrefabGUID prefabGuid, int spellIndex)
     {
         _classSpells.TryAdd(prefabGuid, spellIndex);
@@ -78,5 +82,5 @@ internal static class AbilityRunScriptsSystemPatch
         _weaponAbility.TryAdd(prefabGuid, spellIndex);
     }
 
-   
+
 }

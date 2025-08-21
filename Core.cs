@@ -2,15 +2,15 @@
 using BepInEx.Logging;
 using BepInEx.Unity.IL2CPP.Utils.Collections;
 
-using Unshseathed.Patches;
-using Unshseathed.Resources;
-using Unshseathed.Services;
+using Unsheathed.Patches;
+using Unsheathed.Resources;
+using Unsheathed.Services;
 
 
 
 
 
-using Unshseathed.Utilities;
+using Unsheathed.Utilities;
 using Il2CppInterop.Runtime;
 using ProjectM;
 using ProjectM.Physics;
@@ -20,10 +20,10 @@ using System.Collections;
 using Unity.Collections;
 using Unity.Entities;
 using UnityEngine;
-using static Unshseathed.Utilities.EntityQueries;
+using static Unsheathed.Utilities.EntityQueries;
 using ComponentType = Unity.Entities.ComponentType;
 
-namespace Unshseathed;
+namespace Unsheathed;
 internal static class Core
 {
     public static World Server { get; } = GetServerWorld() ?? throw new Exception("There is no Server world!");
@@ -66,18 +66,18 @@ internal static class Core
         PrefabGUIDs.Buff_Militia_Fabian_Return
     ];
 
-   
 
-   
 
-   
+
+
+
     static readonly bool _classes = ConfigService.ClassSystem;
-  
-   
-   
-    
 
-  
+
+
+
+
+
     public static byte[] NEW_SHARED_KEY { get; set; }
 
     public static bool _initialized = false;
@@ -91,49 +91,49 @@ internal static class Core
 
         if (!ComponentRegistry._initialized) ComponentRegistry.Initialize();
 
-     
+
         _ = new LocalizationService();
-       
 
-      
 
-       
 
-       
+
+
+
+
 
         if (ConfigService.ClassSystem)
         {
             // Configuration.InitializeClassPassiveBuffs();
             Configuration.GetClassSpellCooldowns();
-           
+
         }
 
-       
 
-      
 
-       
 
-        
 
-       
-           
 
-       
+
+
+
+
+
+
+
         ModifyPrefabs();
-      
+
 
         try
         {
             ServerGameBalanceSettings = ServerGameBalanceSettings.Get(SystemService.ServerGameSettingsSystem._ServerBalanceSettings);
-           
+
         }
         catch (Exception e)
         {
             Log.LogWarning($"Error getting attribute soft caps: {e}");
         }
 
-       
+
 
         _initialized = true;
         DebugLoggerPatch._initialized = true;
@@ -199,21 +199,21 @@ internal static class Core
 
         return addItemSettings;
     }
-    
-   
+
+
     static void ModifyPrefabs()
     {
-       
 
-       
 
-       
 
-        
 
-       
 
-            
+
+
+
+
+
+
 
         if (ConfigService.TwilightArsenal)
         {
@@ -241,7 +241,7 @@ internal static class Core
                         CopyCooldown = true,
                         Priority = 0
                     });
-           
+
 
 
 
@@ -273,14 +273,14 @@ internal static class Core
                 }
             }
 
-            if (SystemService.PrefabCollectionSystem._PrefabGuidToEntityMap.TryGetValue(PrefabGUIDs.Item_Weapon_Daggers_Legendary_T06, out  prefabEntity))
+            if (SystemService.PrefabCollectionSystem._PrefabGuidToEntityMap.TryGetValue(PrefabGUIDs.Item_Weapon_Daggers_Legendary_T06, out prefabEntity))
             {
                 prefabEntity.With((ref EquippableData equippableData) =>
                 {
                     equippableData.BuffGuid = PrefabGUIDs.EquipBuff_Weapon_Daggers_Base;
                 });
             }
-            
+
             if (SystemService.PrefabCollectionSystem._PrefabGuidToEntityMap.TryGetValue(PrefabGUIDs.EquipBuff_Weapon_Daggers_Base, out buffEntity))
             {
                 if (buffEntity.TryGetBuffer<ReplaceAbilityOnSlotBuff>(out var buffer))
@@ -288,7 +288,7 @@ internal static class Core
                     buffer.Clear();
 
                     // PRIMARY (Left click) - slot 0
-               
+
                     buffer.Add(new ReplaceAbilityOnSlotBuff
                     {
                         Slot = 0,
@@ -296,10 +296,10 @@ internal static class Core
                         CopyCooldown = true,
                         Priority = 0
                     });
-                
+
 
                     // weaponQ (Right click) - slot 1
-               
+
                     buffer.Add(new ReplaceAbilityOnSlotBuff
                     {
                         Slot = 1,
@@ -324,7 +324,7 @@ internal static class Core
 
                 }
             }
-            
+
             if (SystemService.PrefabCollectionSystem._PrefabGuidToEntityMap.TryGetValue(PrefabGUIDs.Item_Weapon_Reaper_Legendary_T06, out prefabEntity))
             {
                 prefabEntity.With((ref EquippableData equippableData) =>
@@ -340,7 +340,7 @@ internal static class Core
                     buffer.Clear();
 
                     // PRIMARY (Left click) - slot 0
-               
+
                     buffer.Add(new ReplaceAbilityOnSlotBuff
                     {
                         Slot = 0,
@@ -376,7 +376,7 @@ internal static class Core
 
                 }
             }
-            
+
             if (SystemService.PrefabCollectionSystem._PrefabGuidToEntityMap.TryGetValue(PrefabGUIDs.Item_Weapon_Mace_Legendary_T06, out prefabEntity))
             {
                 prefabEntity.With((ref EquippableData equippableData) =>
@@ -392,7 +392,7 @@ internal static class Core
                     buffer.Clear();
 
                     // PRIMARY (Left click) - slot 0
-                  
+
                     buffer.Add(new ReplaceAbilityOnSlotBuff
                     {
                         Slot = 0,
@@ -415,7 +415,7 @@ internal static class Core
 
 
                     // WeaponE - slot 2
-                    
+
                     buffer.Add(new ReplaceAbilityOnSlotBuff
                     {
                         Slot = 4,
@@ -426,7 +426,7 @@ internal static class Core
                     AbilityRunScriptsSystemPatch.AddWeaponAbility(PrefabGUIDs.AB_Paladin_HolyNuke_AbilityGroup, 5); // 0 = spell index
                 }
             }
-            
+
             if (SystemService.PrefabCollectionSystem._PrefabGuidToEntityMap.TryGetValue(PrefabGUIDs.Item_Weapon_Sword_Legendary_T06, out prefabEntity))
             {
                 prefabEntity.With((ref EquippableData equippableData) =>
@@ -442,7 +442,7 @@ internal static class Core
                     buffer.Clear();
 
                     // PRIMARY (Left click) - slot 0
-          
+
                     buffer.Add(new ReplaceAbilityOnSlotBuff
                     {
                         Slot = 0,
@@ -450,7 +450,7 @@ internal static class Core
                         CopyCooldown = true,
                         Priority = 0
                     });
-                   
+
 
 
                     // weaponQ (Right click) - slot 1
@@ -478,7 +478,7 @@ internal static class Core
 
                 }
             }
-            
+
             if (SystemService.PrefabCollectionSystem._PrefabGuidToEntityMap.TryGetValue(PrefabGUIDs.Item_Weapon_GreatSword_Legendary_T06, out prefabEntity))
             {
                 prefabEntity.With((ref EquippableData equippableData) =>
@@ -510,7 +510,7 @@ internal static class Core
                         CopyCooldown = true,
                         Priority = 0
                     });
-         
+
                     // WeaponE - slot 2
                     buffer.Add(new ReplaceAbilityOnSlotBuff
                     {
@@ -522,7 +522,7 @@ internal static class Core
                     AbilityRunScriptsSystemPatch.AddWeaponAbility(PrefabGUIDs.AB_HighLord_SwordDashCleave_AbilityGroup, 5); // 0 = spell index
                 }
             }
-            
+
             if (SystemService.PrefabCollectionSystem._PrefabGuidToEntityMap.TryGetValue(PrefabGUIDs.Item_Weapon_Spear_Legendary_T06, out prefabEntity))
             {
                 prefabEntity.With((ref EquippableData equippableData) =>
@@ -530,7 +530,7 @@ internal static class Core
                     equippableData.BuffGuid = PrefabGUIDs.EquipBuff_Weapon_Spear_Base;
                 });
             }
-            
+
 
             if (SystemService.PrefabCollectionSystem._PrefabGuidToEntityMap.TryGetValue(PrefabGUIDs.EquipBuff_Weapon_Spear_Base, out buffEntity))
             {
@@ -568,7 +568,7 @@ internal static class Core
                     AbilityRunScriptsSystemPatch.AddWeaponAbility(PrefabGUIDs.AB_Undead_CursedSmith_FloatingSpear_SpearThrust_AbilityGroup, 11); // 0 = spell index
                 }
             }
-            
+
             if (SystemService.PrefabCollectionSystem._PrefabGuidToEntityMap.TryGetValue(PrefabGUIDs.Item_Weapon_TwinBlades_Legendary_T06, out prefabEntity))
             {
                 prefabEntity.With((ref EquippableData equippableData) =>
@@ -600,7 +600,7 @@ internal static class Core
                         CopyCooldown = true,
                         Priority = 0
                     });
-                  
+
 
                     // WeaponE - slot 2
                     buffer.Add(new ReplaceAbilityOnSlotBuff
@@ -613,7 +613,7 @@ internal static class Core
                     AbilityRunScriptsSystemPatch.AddWeaponAbility(PrefabGUIDs.AB_Undead_ArenaChampion_CounterStrike_AbilityGroup, 6); // 0 = spell index
                 }
             }
-            
+
             if (SystemService.PrefabCollectionSystem._PrefabGuidToEntityMap.TryGetValue(PrefabGUIDs.Item_Weapon_Slashers_Legendary_T06, out prefabEntity))
             {
                 prefabEntity.With((ref EquippableData equippableData) =>
@@ -658,7 +658,7 @@ internal static class Core
                     AbilityRunScriptsSystemPatch.AddWeaponAbility(PrefabGUIDs.AB_Militia_Scribe_RazorParchment_AbilityGroup, 5); // 0 = spell index
                 }
             }
-            
+
             if (SystemService.PrefabCollectionSystem._PrefabGuidToEntityMap.TryGetValue(PrefabGUIDs.Item_Weapon_Whip_Legendary_T06, out prefabEntity))
             {
                 prefabEntity.With((ref EquippableData equippableData) =>
@@ -704,7 +704,7 @@ internal static class Core
                     AbilityRunScriptsSystemPatch.AddWeaponAbility(PrefabGUIDs.AB_Bandit_Foreman_ThrowNet_Group, 4); // 0 = spell index
                 }
             }
-            
+
             if (SystemService.PrefabCollectionSystem._PrefabGuidToEntityMap.TryGetValue(PrefabGUIDs.Item_Weapon_Pistols_Legendary_T06, out prefabEntity))
             {
                 prefabEntity.With((ref EquippableData equippableData) =>
@@ -750,7 +750,7 @@ internal static class Core
                     AbilityRunScriptsSystemPatch.AddWeaponAbility(PrefabGUIDs.AB_VHunter_Jade_DisablingShot_Group, 11); // 0 = spell index
                 }
             }
-            
+
             if (SystemService.PrefabCollectionSystem._PrefabGuidToEntityMap.TryGetValue(PrefabGUIDs.Item_Weapon_Crossbow_Legendary_T06, out prefabEntity))
             {
                 prefabEntity.With((ref EquippableData equippableData) =>
@@ -796,7 +796,7 @@ internal static class Core
                     AbilityRunScriptsSystemPatch.AddWeaponAbility(PrefabGUIDs.AB_Bandit_ClusterBombThrow_AbilityGroup, 7); // 0 = spell index
                 }
             }
-            
+
             if (SystemService.PrefabCollectionSystem._PrefabGuidToEntityMap.TryGetValue(PrefabGUIDs.Item_Weapon_Longbow_Legendary_T06, out prefabEntity))
             {
                 prefabEntity.With((ref EquippableData equippableData) =>
@@ -841,8 +841,8 @@ internal static class Core
                     AbilityRunScriptsSystemPatch.AddWeaponAbility(PrefabGUIDs.AB_VHunter_Jade_Stealth_Group, 7); // 0 = spell indexv
                 }
             }
-            
-             
+
+
             if (SystemService.PrefabCollectionSystem._PrefabGuidToEntityMap.TryGetValue(PrefabGUIDs.Item_Weapon_Claws_Legendary_T06, out prefabEntity))
             {
                 prefabEntity.With((ref EquippableData equippableData) =>
@@ -870,11 +870,11 @@ internal static class Core
                     buffer.Add(new ReplaceAbilityOnSlotBuff
                     {
                         Slot = 1,
-                        NewGroupId = PrefabGUIDs.AB_Prog_HomingNova_Group    ,
+                        NewGroupId = PrefabGUIDs.AB_Prog_HomingNova_Group,
                         CopyCooldown = true,
                         Priority = 0
                     });
-                    AbilityRunScriptsSystemPatch.AddWeaponAbility(PrefabGUIDs.AB_Prog_HomingNova_Group    , 5); // 0 = spell index
+                    AbilityRunScriptsSystemPatch.AddWeaponAbility(PrefabGUIDs.AB_Prog_HomingNova_Group, 5); // 0 = spell index
 
                     // WeaponE - slot 2
                     buffer.Add(new ReplaceAbilityOnSlotBuff
@@ -887,7 +887,7 @@ internal static class Core
                     AbilityRunScriptsSystemPatch.AddWeaponAbility(PrefabGUIDs.AB_Blackfang_Striker_FistBlock_AbilityGroup, 5); // 0 = spell index
                 }
             }
-            
+
             // add more custom weapons
 
             if (SystemService.PrefabCollectionSystem._PrefabGuidToEntityMap.TryGetValue(PrefabGUIDs.Item_Weapon_Axe_Legendary_T06, out prefabEntity))
@@ -923,8 +923,8 @@ internal static class Core
         }
     }
 
-   
-   
+
+
     static bool IsWeaponPrimaryProjectile(string prefabName, WeaponType weaponType)
     {
         return prefabName.ContainsAll([weaponType.ToString(), "Primary", "Projectile"]);
@@ -956,5 +956,3 @@ public struct NativeAccessor<T>(NativeArray<T> array) : IDisposable where T : un
     public NativeArray<T>.Enumerator GetEnumerator() => _array.GetEnumerator();
     public void Dispose() => _array.Dispose();
 }
-
-

@@ -1,4 +1,4 @@
-using Unshseathed.Services;
+using Unsheathed.Services;
 using Il2CppInterop.Runtime;
 using ProjectM;
 using ProjectM.Gameplay.Systems;
@@ -10,10 +10,10 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
-using static Unshseathed.Services.LocalizationService;
+using static Unsheathed.Services.LocalizationService;
 
 
-namespace Unshseathed;
+namespace Unsheathed;
 internal static class VExtensions
 {
     static EntityManager EntityManager => Core.EntityManager;
@@ -114,7 +114,7 @@ internal static class VExtensions
     }
     public static string GetSequenceName(this SequenceGUID sequenceGuid)
     {
-        return SequenceGuidNames.TryGetValue(sequenceGuid, out string sequenceName) ? sequenceName: string.Empty;
+        return SequenceGuidNames.TryGetValue(sequenceGuid, out string sequenceName) ? sequenceName : string.Empty;
     }
     public static string GetLocalizedName(this PrefabGUID prefabGuid)
     {
@@ -348,7 +348,7 @@ internal static class VExtensions
 
         return NetworkId.Empty;
     }
-   
+
     public static PrefabGUID GetPrefabGuid(this Entity entity)
     {
         if (entity.TryGetComponent(out PrefabGUID prefabGuid)) return prefabGuid;

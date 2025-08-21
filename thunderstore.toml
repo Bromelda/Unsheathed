@@ -5,7 +5,7 @@ schemaVersion = "0.0.1"
 namespace = "__NAMESPACE__"
 name = "__NAME__"
 versionNumber = "__VERSION__"
-description = "Server mod that adds changes weapon abilities"
+description = "Server mod that changes weapon abilities"
 websiteUrl = "https://github.com/__GITHUB_REPO__"
 containsNsfwContent = false
 

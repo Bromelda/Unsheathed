@@ -9,11 +9,7 @@ internal class DebugLoggerPatch
 {
     public static bool _initialized = false;
 
-   
-}
 
-   
-   
     /*
     const string TYPE_INDEX_ERROR = "typeIndexInArchetype was -1";
 
@@ -33,4 +29,5 @@ internal class DebugLoggerPatch
         return true;
     }
     */
+}
 

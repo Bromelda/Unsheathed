@@ -1,6 +1,6 @@
-using Unshseathed.Patches;
-using Unshseathed.Resources;
-using Unshseathed.Services;
+using Unsheathed.Patches;
+using Unsheathed.Resources;
+using Unsheathed.Services;
 using ProjectM;
 using ProjectM.Network;
 using ProjectM.Scripting;
@@ -8,7 +8,8 @@ using Stunlock.Core;
 using Unity.Collections;
 using Unity.Entities;
 
-namespace Unshseathed.Utilities;
+
+namespace Unsheathed.Utilities;
 internal static class Buffs
 {
     static ServerGameManager ServerGameManager => Core.ServerGameManager;
@@ -78,7 +79,7 @@ internal static class Buffs
 
     public static readonly PrefabGUID BonusStatsBuff = PrefabGUIDs.SetBonus_AllLeech_T09;
     public static readonly PrefabGUID BonusPlayerStatsBuff = BonusStatsBuff;
-   
+
 
     static readonly Dictionary<PrefabGUID, int> _buffMaxStacks = [];
     public static bool TryApplyBuff(this Entity entity, PrefabGUID prefabGuid)
@@ -295,7 +296,7 @@ internal static class Buffs
             buffEntity.Remove<AmplifyBuff>();
         }
     }
-    
+
     public static bool PlayerInCombat(this Entity entity)
     {
         if (entity.IsPlayer())
@@ -332,8 +333,8 @@ internal static class Buffs
         }
     }
 
-   
-   
+
+
     public static void RefreshStats(Entity entity)
     {
         ApplyBuffDebugEvent applyBuffDebugEvent = new()
@@ -351,3 +352,4 @@ internal static class Buffs
         DebugEventsSystem.ApplyBuff(fromCharacter, applyBuffDebugEvent);
     }
 }
+

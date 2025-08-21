@@ -1,5 +1,5 @@
-using Unshseathed.Resources;
-using Unshseathed.Services;
+using Unsheathed.Resources;
+using Unsheathed.Services;
 using ProjectM;
 using ProjectM.Network;
 using ProjectM.Scripting;
@@ -11,7 +11,7 @@ using VampireCommandFramework;
 
 
 
-namespace Unshseathed.Utilities;
+namespace Unsheathed.Utilities;
 internal static class Misc
 {
     static EntityManager EntityManager => Core.EntityManager;
@@ -71,15 +71,15 @@ internal static class Misc
         }
     }
 
-  
-   
 
-   
 
-    
 
-   
-   
+
+
+
+
+
+
     public static string FormatTimespan(TimeSpan timeSpan)
     {
         string timeString = timeSpan.ToString(@"mm\:ss");
@@ -239,7 +239,7 @@ internal static class Misc
         }
     }
     */
-  
+
     public static void ReplySCTDetails(ChatCommandContext ctx)
     {
         ulong steamId = ctx.User.PlatformId;
@@ -247,14 +247,14 @@ internal static class Misc
         StringBuilder sb = new();
         sb.AppendLine("<color=#FFC0CB>SCT Options</color>:");
 
-      
-       
-        {
-            
 
-           
+
+        {
+
+
+
             {
-                
+
             }
         }
 
@@ -308,6 +308,5 @@ internal static class Misc
         }
     }
 
-   
-}
 
+}

@@ -5,25 +5,25 @@ using System.Text.RegularExpressions;
 
 
 
-namespace Unshseathed.Services;
+
+namespace Unsheathed.Services;
 internal static class ConfigService
 {
     static readonly Lazy<string> _languageLocalization = new(() => GetConfigValue<string>("LanguageLocalization"));
     public static string LanguageLocalization => _languageLocalization.Value;
 
-   
+
 
     static readonly Lazy<bool> _twilightArsenal = new(() => GetConfigValue<bool>("TwilightArsenal"));
     public static bool TwilightArsenal => _twilightArsenal.Value;
 
-   
 
-    
 
-    static readonly Lazy<bool> _unarmedSlots = new(() => GetConfigValue<bool>("UnarmedSlots"));
-    public static bool UnarmedSlots => _unarmedSlots.Value;
+
 
    
+
+
 
     static readonly Lazy<float> _maxHealth = new(() => GetConfigValue<float>("MaxHealth"));
     public static float MaxHealth => _maxHealth.Value;
@@ -61,13 +61,13 @@ internal static class ConfigService
     static readonly Lazy<float> _spellCritDamage = new(() => GetConfigValue<float>("SpellCritDamage"));
     public static float SpellCritDamage => _spellCritDamage.Value;
 
-   
+
     static readonly Lazy<bool> _bloodQualityBonus = new(() => GetConfigValue<bool>("BloodQualityBonus"));
     public static bool BloodQualityBonus => _bloodQualityBonus.Value;
 
-   
 
-   
+
+
 
     static readonly Lazy<float> _healingReceived = new(() => GetConfigValue<float>("HealingReceived"));
     public static float HealingReceived => _healingReceived.Value;
@@ -105,7 +105,7 @@ internal static class ConfigService
     static readonly Lazy<float> _corruptionDamageReduction = new(() => GetConfigValue<float>("CorruptionDamageReduction"));
     public static float CorruptionDamageReduction => _corruptionDamageReduction.Value;
 
-   
+
 
     static readonly Lazy<bool> _classSystem = new(() => GetConfigValue<bool>("ClassSystem"));
     public static bool ClassSystem => _classSystem.Value;
@@ -113,18 +113,13 @@ internal static class ConfigService
     // static readonly Lazy<bool> _lockedSynergies = new(() => GetConfigValue<bool>("LockedSynergies"));
     // public static bool LockedSynergies => _lockedSynergies.Value;
 
-    static readonly Lazy<bool> _classOnHitEffects = new(() => GetConfigValue<bool>("ClassOnHitEffects"));
-    public static bool ClassOnHitEffects => _classOnHitEffects.Value;
+   
 
-    static readonly Lazy<float> _onHitProcChance = new(() => GetConfigValue<float>("OnHitProcChance"));
-    public static float OnHitProcChance => _onHitProcChance.Value;
 
-  
 
-    static readonly Lazy<int> _defaultClassSpell = new(() => GetConfigValue<int>("DefaultClassSpell"));
-    public static int DefaultClassSpell => _defaultClassSpell.Value;
+    
 
-  
+
     public static class ConfigInitialization
     {
         static readonly Regex _regex = new(@"^\[(.+)\]$");
@@ -158,11 +153,11 @@ internal static class ConfigService
         public static readonly List<ConfigEntryDefinition> ConfigEntries =
         [
             new ConfigEntryDefinition("General", "LanguageLocalization", "English", "The language localization for prefabs displayed to users. English by default. Options: Brazilian, English, French, German, Hungarian, Italian, Japanese, Koreana, Latam, Polish, Russian, SimplifiedChinese, Spanish, TraditionalChinese, Thai, Turkish, Vietnamese"),
-           
+
             new ConfigEntryDefinition("General", "TwilightArsenal", false, "Enable or disable experimental ability replacements on shadow weapons (currently just axes but like cosplaying as Thor with two mjolnirs)."),
+
            
-            new ConfigEntryDefinition("Expertise", "UnarmedSlots", false, "Enable or disable the ability to use extra unarmed spell slots."),
-            
+            /*
             new ConfigEntryDefinition("Expertise", "MaxHealth", 250f, "The base cap for maximum health."),
             new ConfigEntryDefinition("Expertise", "MovementSpeed", 0.25f, "The base cap for movement speed."),
             new ConfigEntryDefinition("Expertise", "PrimaryAttackSpeed", 0.10f, "The base cap for primary attack speed."),
@@ -176,7 +171,7 @@ internal static class ConfigService
             new ConfigEntryDefinition("Expertise", "SpellCritChance", 0.10f, "The base cap for spell critical strike chance."),
             new ConfigEntryDefinition("Expertise", "SpellCritDamage", 0.50f, "The base cap for spell critical strike damage."),
 
-           
+
             new ConfigEntryDefinition("Legacies", "HealingReceived", 0.15f, "The base cap for healing received."),
             new ConfigEntryDefinition("Legacies", "DamageReduction", 0.05f, "The base cap for damage reduction."),
             new ConfigEntryDefinition("Legacies", "PhysicalResistance", 0.10f, "The base cap for physical resistance."),
@@ -189,17 +184,15 @@ internal static class ConfigService
             new ConfigEntryDefinition("Legacies", "MinionDamage", 0.25f, "The base cap for minion damage."),
             new ConfigEntryDefinition("Legacies", "AbilityAttackSpeed", 0.10f, "The base cap for ability attack speed."),
             new ConfigEntryDefinition("Legacies", "CorruptionDamageReduction", 0.10f, "The base cap for corruption damage reduction."),
+            */
 
-           
-            new ConfigEntryDefinition("Classes", "ClassSystem", false, "Enable classes without synergy restrictions."),
-           
-            new ConfigEntryDefinition("Classes", "ClassOnHitEffects", true, "Enable or disable class spell school on hit effects (chance to proc respective debuff from spell school when dealing damage (leech, chill, condemn etc), second tier effect will proc if first is already present on target."),
-            new ConfigEntryDefinition("Classes", "OnHitProcChance", 0.075f, "The chance for a class effect to proc on hit."),
+            new ConfigEntryDefinition("Classes", "ClassSystem", false, "Enable classes without synergy restrictions.")
+
+          
            
 
-            // need to revamp these to some degree and add new spells etc.
-            new ConfigEntryDefinition("Classes", "DefaultClassSpell", -433204738, "Default spell (veil of shadow) available to all classes.")
-           
+            
+
         ];
         public static void InitializeConfig()
         {
