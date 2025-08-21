@@ -14,8 +14,8 @@ jobs:
     env:
       # Also the .dll name
       PROJECT_NAME: Unsheathed
-      THUNDERSTORE_NAME: unsheathed
-      THUNDERSTORE_NAMESPACE: bromelda
+      THUNDERSTORE_NAME: Unsheathed
+      THUNDERSTORE_NAMESPACE: Bromelda
 
     steps:
       - name: Install GitVersion
