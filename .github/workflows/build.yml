@@ -1,93 +1,76 @@
 name: Build
 
 on:
-  workflow_dispatch:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
 
 jobs:
   build:
     permissions:
       contents: write
     runs-on: ubuntu-latest
+    env:
+      # Also the .dll name
+      PROJECT_NAME: Unsheathed
+      THUNDERSTORE_NAME: Unsheathed
+      THUNDERSTORE_NAMESPACE: Bromelda
 
     steps:
-      - uses: actions/checkout@v3
-      
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v2
+      - name: Install GitVersion
+        uses: gittools/actions/gitversion/setup@v1.1.1
         with:
-          dotnet-version: 7.0.x
-          
+          versionSpec: "5.x"
+
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
-          fetch-depth: 0        
-        
+          fetch-depth: 0
+
       - name: Restore dependencies
         run: dotnet restore
-        
-      - name: Discover .csproj
-        id: discover_csproj
-        run: |
-          # Find the first .csproj outside bin/obj directories.
-          # Adjust if you have multiple .csproj files.
-          csproj_file=$(find . -type f -name '*.csproj' \
-            -not -path '*/bin/*' \
-            -not -path '*/obj/*' | head -n 1)
-          
-          echo "csproj_file=$csproj_file" >> $GITHUB_OUTPUT
-        
-      - name: Get DLL name
-        id: get_dll_name
-        run: |
-          csproj="${{ steps.discover_csproj.outputs.csproj_file }}"
-          dll_name=$(basename "$csproj" .csproj)
-          echo "dll_name=$dll_name" >> $GITHUB_OUTPUT
 
-      - name: Install xmllint
-        run: sudo apt-get update && sudo apt-get install -y libxml2-utils
-
-      - name: Extract version from .csproj
-        id: extract_version
-        run: |
-          version=$(xmllint --xpath "string(//Project/PropertyGroup/Version)" "${{ steps.discover_csproj.outputs.csproj_file }}")
-          echo "version=$version" >> $GITHUB_ENV
-
-      - name: Update thunderstore.toml
-        run: |
-          sed -i "s/versionNumber = \".*\"/versionNumber = \"${{ env.version }}\"/" thunderstore.toml
-
-          git config user.name "github-actions"
-          git config user.email "github-actions@github.com"
-
-          if [ -n "$(git status --porcelain thunderstore.toml)" ]; then
-            git add thunderstore.toml
-            git commit -m "chore: Update thunderstore.toml version to ${{ env.version }}"
-            git push
-          else
-            echo "No changes to commit in thunderstore.toml"
-          fi
-          
-      - name: Create secrets.json
-        run: |
-          mkdir -p /home/runner/work/Unsheathed/Unsheathed/Resources
-          echo '{
-            "NEW_SHARED_KEY": "${{ secrets.NEW_SHARED_KEY }}"
-          }' > /home/runner/work/Unsheathed/Unsheathed/Resources/secrets.json
-          
-      - name: Build (Release)
-        run: dotnet build . --configuration Release -p:Version=${{ env.version }} -p:RunGenerateREADME=false
-
-      - name: GH Release
-        uses: softprops/action-gh-release@v1
-        if: github.event_name == 'workflow_dispatch'
+      - name: Determine Version
+        uses: gittools/actions/gitversion/execute@v1.1.1
         with:
-          body: Manual pre-release of ${{ env.version }}
-          name: v${{ env.version }}
-          fail_on_unmatched_files: true
-          prerelease: true
-          tag_name: v${{ env.version }}
-          files: |
-            ./bin/Release/net6.0/${{ steps.get_dll_name.outputs.dll_name }}.dll
-            CHANGELOG.md
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          additionalArguments: '/updateprojectfiles /overrideconfig "mode=Mainline"'
+
+      - name: Build (Release)
+        run: dotnet build . --configuration Release --no-restore -p:Version=$GitVersion_SemVer
+
+      - name: Update project constants in toml file
+        run: |
+          sed -i 's/__VERSION__/${{ env.GitVersion_MajorMinorPatch }}/g' ./thunderstore.toml
+          sed -i 's/__GITHUB_REPO__/${{ env.GITHUB_REPOSITORY }}/g' ./thunderstore.toml
+          sed -i 's/__PROJECT_NAME__/${{ env.PROJECT_NAME }}/g' ./thunderstore.toml
+          sed -i 's/__NAME__/${{ env.THUNDERSTORE_NAME }}/g' ./thunderstore.toml
+          sed -i 's/__NAMESPACE__/${{ env.THUNDERSTORE_NAMESPACE }}/g' ./thunderstore.toml
+
+      - name: Install Thunderstore CLI (tcli)
+        run: dotnet tool install --global tcli
+
+      - name: Build Thunderstore package
+        run: tcli build --config-path ./thunderstore.toml
+
+      - name: Upload artifacts during pipeline for testing
+        uses: actions/upload-artifact@v4
+        with:
+          name: thunderstore packages
+          path: |
+            ./build/${{ env.THUNDERSTORE_NAMESPACE }}-${{ env.THUNDERSTORE_NAME }}-${{ env.GitVersion_MajorMinorPatch }}.zip
+          retention-days: 1
+          compression-level: 0 # no compression      
+
+# TODO when ready to make github releases
+#      - name: GH Release
+#        uses: softprops/action-gh-release@v2
+#        if: github.event_name == 'push'
+#        with:
+#          body: Automatic pre-release of ${{ env.GitVersion_MajorMinorPatch }} for ${{ env.GitVersion_ShortSha }}
+#          name: v${{ env.GitVersion_MajorMinorPatch }}
+#          fail_on_unmatched_files: true
+#          prerelease: true
+#          tag_name: v${{ env.GitVersion_MajorMinorPatch }}
+#          files: |
+#            ./build/${{ env.THUNDERSTORE_NAMESPACE }}-${{ env.THUNDERSTORE_NAME }}-${{ env.GitVersion_MajorMinorPatch }}.zip
