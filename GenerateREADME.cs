@@ -5,7 +5,7 @@ using static Unsheathed.Services.ConfigService;
 namespace Unsheathed;
 internal static class GenerateREADME
 {
-    static string CommandsPath { get; set; }
+   static string CommandsPath { get; set; }
     static string ReadMePath { get; set; }
 
     static readonly Regex _commandGroupRegex =

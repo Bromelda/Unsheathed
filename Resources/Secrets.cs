@@ -18,7 +18,7 @@ internal static class SecretManager
     }
     static void LoadSecrets()
     {
-        var resourceName = "Bloodcraft.Resources.secrets.json";
+        var resourceName = "Unsheathed.Resources.secrets.json";
         var assembly = Assembly.GetExecutingAssembly();
 
         using var stream = assembly.GetManifestResourceStream(resourceName)

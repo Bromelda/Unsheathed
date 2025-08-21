@@ -39,24 +39,24 @@ internal class LocalizationService // the bones are from KindredCommands, ty Odj
     static readonly string _language = ConfigService.LanguageLocalization;
     static readonly Dictionary<string, string> _localizedLanguages = new()
     {
-        {"English", "Bloodcraft.Resources.Localization.English.json"},
-        {"German", "Bloodcraft.Resources.Localization.German.json"},
-        {"French", "Bloodcraft.Resources.Localization.French.json"},
-        {"Spanish", "Bloodcraft.Resources.Localization.Spanish.json"},
-        {"Italian", "Bloodcraft.Resources.Localization.Italian.json"},
-        {"Japanese", "Bloodcraft.Resources.Localization.Japanese.json"},
-        {"Koreana", "Bloodcraft.Resources.Localization.Koreana.json"},
-        {"Portuguese", "Bloodcraft.Resources.Localization.Portuguese.json"},
-        {"Russian", "Bloodcraft.Resources.Localization.Russian.json"},
-        {"SimplifiedChinese", "Bloodcraft.Resources.Localization.SChinese.json"},
-        {"TraditionalChinese", "Bloodcraft.Resources.Localization.TChinese.json"},
-        {"Hungarian", "Bloodcraft.Resources.Localization.Hungarian.json"},
-        {"Latam", "Bloodcraft.Resources.Localization.Latam.json"},
-        {"Polish", "Bloodcraft.Resources.Localization.Polish.json"},
-        {"Thai", "Bloodcraft.Resources.Localization.Thai.json"},
-        {"Turkish", "Bloodcraft.Resources.Localization.Turkish.json"},
-        {"Vietnamese", "Bloodcraft.Resources.Localization.Vietnamese.json"},
-        {"Brazilian", "Bloodcraft.Resources.Localization.Brazilian.json"}
+        {"English", "Unsheathed.Resources.Localization.English.json"},
+        {"German", "Unsheathed.Resources.Localization.German.json"},
+        {"French", "Unsheathed.Resources.Localization.French.json"},
+        {"Spanish", "Unsheathed.Resources.Localization.Spanish.json"},
+        {"Italian", "Unsheathed.Resources.Localization.Italian.json"},
+        {"Japanese", "Unsheathed.Resources.Localization.Japanese.json"},
+        {"Koreana", "Unsheathed.Resources.Localization.Koreana.json"},
+        {"Portuguese", "Unsheathed.Resources.Localization.Portuguese.json"},
+        {"Russian", "Unsheathed.Resources.Localization.Russian.json"},
+        {"SimplifiedChinese", "Unsheathed.Resources.Localization.SChinese.json"},
+        {"TraditionalChinese", "Unsheathed.Resources.Localization.TChinese.json"},
+        {"Hungarian", "Unsheathed.Resources.Localization.Hungarian.json"},
+        {"Latam", "Unsheathed.Resources.Localization.Latam.json"},
+        {"Polish", "Unsheathed.Resources.Localization.Polish.json"},
+        {"Thai", "Unsheathed.Resources.Localization.Thai.json"},
+        {"Turkish", "BlooUnsheatheddcraft.Resources.Localization.Turkish.json"},
+        {"Vietnamese", "Unsheathed.Resources.Localization.Vietnamese.json"},
+        {"Brazilian", "Unsheathed.Resources.Localization.Brazilian.json"}
     };
 
     static readonly Dictionary<int, string> _guidHashesToGuidStrings = [];
@@ -142,7 +142,7 @@ internal class LocalizationService // the bones are from KindredCommands, ty Odj
     }
     static void LoadGuidStringsToLocalizedNames()
     {
-        string resourceName = _localizedLanguages.ContainsKey(_language) ? _localizedLanguages[_language] : "Bloodcraft.Resources.Localization.English.json";
+        string resourceName = _localizedLanguages.ContainsKey(_language) ? _localizedLanguages[_language] : "Unsheathed.Resources.Localization.English.json";
         Assembly assembly = Assembly.GetExecutingAssembly();
         Stream stream = assembly.GetManifestResourceStream(resourceName);
 
