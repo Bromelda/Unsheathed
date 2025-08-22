@@ -3280,4 +3280,3 @@ internal static class ComponentRegistry
         _initialized = true;
     }
 }
-

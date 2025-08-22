@@ -1,7 +1,12 @@
-using BepInEx.Configuration;
+﻿using BepInEx.Configuration;
 using System.Globalization;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using static Unity.Physics.ConvexHull;
+using System;
+using System.IO;
+using System.Linq;
+using System.Collections.Generic;
 
 
 
@@ -14,8 +19,8 @@ internal static class ConfigService
 
 
 
-    static readonly Lazy<bool> _twilightArsenal = new(() => GetConfigValue<bool>("TwilightArsenal"));
-    public static bool TwilightArsenal => _twilightArsenal.Value;
+    static readonly Lazy<bool> _spiritArsenal = new(() => GetConfigValue<bool>("SpiritArsenal"));
+    public static bool SpiritArsenal => _spiritArsenal.Value;
 
 
 
@@ -107,17 +112,17 @@ internal static class ConfigService
 
 
 
-    static readonly Lazy<bool> _classSystem = new(() => GetConfigValue<bool>("ClassSystem"));
-    public static bool ClassSystem => _classSystem.Value;
-
-    // static readonly Lazy<bool> _lockedSynergies = new(() => GetConfigValue<bool>("LockedSynergies"));
-    // public static bool LockedSynergies => _lockedSynergies.Value;
-
-   
+    static readonly Lazy<bool> _weaponsSystem = new(() => GetConfigValue<bool>("WeaponsSystem"));
+ 
+   public static bool WeaponsSystem => true;
 
 
 
-    
+
+
+
+
+
 
 
     public static class ConfigInitialization
@@ -141,7 +146,7 @@ internal static class ConfigService
         public static readonly List<string> SectionOrder =
         [
             "General",
-            "Classes"
+            "Weapons"
         ];
         public class ConfigEntryDefinition(string section, string key, object defaultValue, string description)
         {
@@ -154,7 +159,185 @@ internal static class ConfigService
         [
             new ConfigEntryDefinition("General", "LanguageLocalization", "English", "The language localization for prefabs displayed to users. English by default. Options: Brazilian, English, French, German, Hungarian, Italian, Japanese, Koreana, Latam, Polish, Russian, SimplifiedChinese, Spanish, TraditionalChinese, Thai, Turkish, Vietnamese"),
 
-            new ConfigEntryDefinition("General", "TwilightArsenal", false, "Enable or disable experimental ability replacements on shadow weapons (currently just axes but like cosplaying as Thor with two mjolnirs)."),
+            new ConfigEntryDefinition("General", "SpiritArsenal", true, "Enable or disable experimental ability replacements on shadow weapons."),
+            // --- Spirit Arsenal: data-driven overrides ---
+            new ConfigEntryDefinition("General","Spirit_Loadout","FishingPole,Daggers,Reaper,Mace,Sword,GreatSword,Spear,TwinBlades,Slashers,Whip,Pistols,Crossbow,Longbow,Claws", "FishingPole,Daggers,Reaper,Mace,Sword,GreatSword,Spear,TwinBlades,Slashers,Whip,Pistols,Crossbow,Longbow,Claws."),
+                // e.g. "FishingPole,Daggers,Reaper,Mace,Sword,GreatSword,Spear,TwinBlades,Slashers,Whip,Pistols,Crossbow,Longbow,Claws."    "Comma-separated weapon keys to override (case-insensitive). If empty, uses hardcoded defaults."
+
+
+// "For each weapon, one string bundle: "primary=<PrefabName|int>;q=<PrefabName|int>;e=<PrefabName|int>;copy=<P,Q,E>."
+new ConfigEntryDefinition("General",
+    "Spirit_Groups_FishingPole",
+    " primary=AB_Fishing_AbilityGroup;q=AB_Bandit_Fisherman_SpinAttack_AbilityGroup;e=AB_Bandit_Fisherman_FishHook_AbilityGroup;copy=true,true,true",
+     "FishingPole Prefab ability Format "),
+
+new ConfigEntryDefinition("General",
+    "Spirit_Groups_Daggers","primary=1837385563;q=1971375367;e=211628325;copy=true,true,true",
+    "Daggers Prefab ability Format "),
+
+new ConfigEntryDefinition("General",
+    "Spirit_Groups_Reaper",
+    "primary=948587795;q=-808864212;e=1691254929;copy=true,true,true",
+    "Reaper Prefab ability Format "),
+
+new ConfigEntryDefinition("General",
+    "Spirit_Groups_Mace",
+    "primary=722599012;q=-1172099204;e=1926314891;copy=true,true,true",
+    "Mace Prefab ability Format "),
+
+new ConfigEntryDefinition("General",
+    "Spirit_Groups_Sword",
+    "primary=-2097352908;q=532210332;e=-1161896955;copy=true,true,true",
+    "Sword Prefab ability Format "),
+
+new ConfigEntryDefinition("General",
+    "Spirit_Groups_GreatSword",
+    "primary=-1428882023;q=-328302080;e=-2126197617;copy=true,true,true",
+    "GreatSword Prefab ability Format "),
+
+new ConfigEntryDefinition("General",
+    "Spirit_Groups_Spear",
+    "primary=1142040823;q=381862924;e=1166337981;copy=true,true,true", 
+    "Spear Prefab ability Format "),
+
+new ConfigEntryDefinition("General",
+    "Spirit_Groups_TwinBlades",
+    "primary=298784800;q=-2023636973;e=-1357375516 ;copy=true,true,true", 
+    "TwinBlades Prefab ability Format "),
+
+new ConfigEntryDefinition("General",
+    "Spirit_Groups_Slashers",
+    "primary=-186690512;q=-198012170;e=2019689688;copy=true,true,true", 
+    "Slashers Prefab ability Format "),
+
+new ConfigEntryDefinition("General",
+    "Spirit_Groups_Whip",
+    "primary=112329675;q=-1111373807;e=2130985273;copy=true,true,true",
+    "Whip Prefab ability Format "),
+
+new ConfigEntryDefinition("General",
+    "Spirit_Groups_Pistols",
+    "primary=1622839653;q=-1884688827;e=-526118698;copy=true,true,true",  
+    "Pistols Prefab ability Format "),
+
+new ConfigEntryDefinition("General",
+    "Spirit_Groups_Crossbow",
+    "primary=1232856473;q=76767983;e=-444905742;copy=true,true,true",  
+    "Crossbow Prefab ability Format "),
+
+new ConfigEntryDefinition("General",
+    "Spirit_Groups_Longbow",
+    "primary=617823552;q=766284586;e=501615608;copy=true,true,true", 
+    "Longbow Prefab ability Format "),
+
+new ConfigEntryDefinition("General",
+    "Spirit_Groups_Claws",
+    "primary=1180130515;q=-1085783726;e=-2096054164;copy=true,true,true", 
+    "Claws Prefab ability Format "),
+
+            // --- Spirit: ability run script indices per weapon ---
+// Format: "P,Q,E" (integers). Example: "1,5,11". Use -1 to skip registering a script for that slot.
+// Leave empty to keep your current defaults.
+new ConfigEntryDefinition(
+    "General",
+    "Spirit_Scripts_FishingPole",
+    "-1,-5,-12", // default script indices for P,Q,E; use -1 to skip
+    "Run script indices for FishingPole Spirit abilities as 'P,Q,E'. Use -1 to skip a slot."
+),
+new ConfigEntryDefinition(
+    "General",
+    "Spirit_Scripts_Daggers",
+    "-1,5,12",
+    "Run script indices for Daggers Spirit abilities as 'P,Q,E' (e.g., '2,7,7'). Use -1 to skip a slot."
+),
+
+            new ConfigEntryDefinition(
+    "General",
+    "Spirit_Scripts_Reaper",
+    "6,5,5",
+    "Run script indices for Reaper Spirit abilities as 'P,Q,E'. Use -1 to skip a slot."
+),
+
+            new ConfigEntryDefinition(
+    "General",
+    "Spirit_Scripts_Mace",
+    "-1,-1,5",
+    "Run script indices for Mace Spirit abilities as 'P,Q,E'. Use -1 to skip a slot."
+),
+
+            new ConfigEntryDefinition(
+    "General",
+    "Spirit_Scripts_Sword",
+    "-1,8,15",
+    "Run script indices for Sword Spirit abilities as 'P,Q,E'. Use -1 to skip a slot."
+),
+
+            new ConfigEntryDefinition(
+    "General",
+    "Spirit_Scripts_GreatSword",
+    "-1,-1,5",
+    "Run script indices for GreatSword Spirit abilities as 'P,Q,E'. Use -1 to skip a slot."
+),
+
+            new ConfigEntryDefinition(
+    "General",
+    "Spirit_Scripts_Spear",
+    "-1,2,11",
+    "Run script indices for Spear Spirit abilities as 'P,Q,E'. Use -1 to skip a slot."
+),
+
+            new ConfigEntryDefinition(
+    "General",
+    "Spirit_Scripts_TwinBlades",
+    "-1,-1,6",
+    "Run script indices for TwinBlades Spirit abilities as 'P,Q,E'. Use -1 to skip a slot."
+),
+
+            new ConfigEntryDefinition(
+    "General",
+    "Spirit_Scripts_Slashers",
+    "-1,5,5",
+    "Run script indices for Slashers Spirit abilities as 'P,Q,E'. Use -1 to skip a slot."
+),
+
+            new ConfigEntryDefinition(
+    "General",
+    "Spirit_Scripts_Whip",
+    "5,2,4",
+    "Run script indices for Whip Spirit abilities as 'P,Q,E'. Use -1 to skip a slot."
+),
+
+            new ConfigEntryDefinition(
+    "General",
+    "Spirit_Scripts_Pistols",
+    "0,5,11",
+    "Run script indices for Pistols Spirit abilities as 'P,Q,E'. Use -1 to skip a slot."
+),
+
+            new ConfigEntryDefinition(
+    "General",
+    "Spirit_Scripts_Crossbow",
+    "3,7,7",
+    "Run script indices for Crossbow Spirit abilities as 'P,Q,E'. Use -1 to skip a slot."
+),
+   
+
+new ConfigEntryDefinition(
+    "General",
+    "Spirit_Scripts_Longbow",
+    "-1,5,7",
+    "Run script indices for Longbow Spirit abilities as 'P,Q,E'. Use -1 to skip a slot."
+),
+
+            new ConfigEntryDefinition(
+    "General",
+    "Spirit_Scripts_Claws",
+    "-1,5,5",
+    "Run script indices for Claws Spirit abilities as 'P,Q,E'. Use -1 to skip a slot."
+)
+
+
+
 
            
             /*
@@ -186,7 +369,7 @@ internal static class ConfigService
             new ConfigEntryDefinition("Legacies", "CorruptionDamageReduction", 0.10f, "The base cap for corruption damage reduction."),
             */
 
-            new ConfigEntryDefinition("Classes", "ClassSystem", false, "Enable classes without synergy restrictions.")
+           
 
           
            

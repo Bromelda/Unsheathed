@@ -43,30 +43,30 @@ internal static class Core
 
 
 
-    // === Twilight config overrides (single source of truth) ===
-    static void Twilight_ApplyAllConfigured()
+    // === Spirit config overrides (single source of truth) ===
+    static void Spirit_ApplyAllConfigured()
     {
-        // Map every Twilight-able weapon here:
-        Twilight_Apply("Pistols", PrefabGUIDs.EquipBuff_Weapon_Pistols_Base);
-        Twilight_Apply("Crossbow", PrefabGUIDs.EquipBuff_Weapon_Crossbow_Base);
-        Twilight_Apply("Longbow", PrefabGUIDs.EquipBuff_Weapon_Longbow_Base);
-        Twilight_Apply("Sword", PrefabGUIDs.EquipBuff_Weapon_Sword_Base);
-        Twilight_Apply("GreatSword", PrefabGUIDs.EquipBuff_Weapon_GreatSword_Base);
-        Twilight_Apply("TwinBlades", PrefabGUIDs.EquipBuff_Weapon_TwinBlades_Base);
-        Twilight_Apply("Slashers", PrefabGUIDs.EquipBuff_Weapon_Slashers_Base);
-        Twilight_Apply("Daggers", PrefabGUIDs.EquipBuff_Weapon_Daggers_Base);
-        Twilight_Apply("Mace", PrefabGUIDs.EquipBuff_Weapon_Mace_Base);
-        Twilight_Apply("Reaper", PrefabGUIDs.EquipBuff_Weapon_Reaper_Base);
-        Twilight_Apply("Spear", PrefabGUIDs.EquipBuff_Weapon_Spear_Base);
-        Twilight_Apply("Whip", PrefabGUIDs.EquipBuff_Weapon_Whip_Base);
-        Twilight_Apply("Claws", PrefabGUIDs.EquipBuff_Weapon_Claws_Base);
-        Twilight_Apply("FishingPole", PrefabGUIDs.EquipBuff_Weapon_FishingPole_Base);
+        // Map every Spirit-able weapon here:
+        Spirit_Apply("Pistols", PrefabGUIDs.EquipBuff_Weapon_Pistols_Base);
+        Spirit_Apply("Crossbow", PrefabGUIDs.EquipBuff_Weapon_Crossbow_Base);
+        Spirit_Apply("Longbow", PrefabGUIDs.EquipBuff_Weapon_Longbow_Base);
+        Spirit_Apply("Sword", PrefabGUIDs.EquipBuff_Weapon_Sword_Base);
+        Spirit_Apply("GreatSword", PrefabGUIDs.EquipBuff_Weapon_GreatSword_Base);
+        Spirit_Apply("TwinBlades", PrefabGUIDs.EquipBuff_Weapon_TwinBlades_Base);
+        Spirit_Apply("Slashers", PrefabGUIDs.EquipBuff_Weapon_Slashers_Base);
+        Spirit_Apply("Daggers", PrefabGUIDs.EquipBuff_Weapon_Daggers_Base);
+        Spirit_Apply("Mace", PrefabGUIDs.EquipBuff_Weapon_Mace_Base);
+        Spirit_Apply("Reaper", PrefabGUIDs.EquipBuff_Weapon_Reaper_Base);
+        Spirit_Apply("Spear", PrefabGUIDs.EquipBuff_Weapon_Spear_Base);
+        Spirit_Apply("Whip", PrefabGUIDs.EquipBuff_Weapon_Whip_Base);
+        Spirit_Apply("Claws", PrefabGUIDs.EquipBuff_Weapon_Claws_Base);
+        Spirit_Apply("FishingPole", PrefabGUIDs.EquipBuff_Weapon_FishingPole_Base);
     }
 
-    static void Twilight_Apply(string weaponKey, PrefabGUID equipBuffGuid)
+    static void Spirit_Apply(string weaponKey, PrefabGUID equipBuffGuid)
     {
-        // Only act if config provides values (and if weaponKey is in Twilight_Loadout, when specified)
-        if (!Unsheathed.Utilities.Configuration.TryGetTwilightGroups(weaponKey, out var s))
+        // Only act if config provides values (and if weaponKey is in Spirit_Loadout, when specified)
+        if (!Unsheathed.Utilities.Configuration.TryGetSpiritGroups(weaponKey, out var s))
             return;
 
         if (!SystemService.PrefabCollectionSystem._PrefabGuidToEntityMap.TryGetValue(equipBuffGuid, out var buffEntity))
@@ -74,10 +74,10 @@ internal static class Core
 
         if (!buffEntity.TryGetBuffer<ReplaceAbilityOnSlotBuff>(out var buffer))
         {
-            Log.LogWarning($"[Twilight] {weaponKey}: ReplaceAbilityOnSlotBuff buffer not found on equip buff entity.");
+            Log.LogWarning($"[Spirit] {weaponKey}: ReplaceAbilityOnSlotBuff buffer not found on equip buff entity.");
             if (!SystemService.PrefabCollectionSystem._PrefabGuidToEntityMap.TryGetValue(equipBuffGuid, out  buffEntity))
             {
-                Log.LogWarning($"[Twilight] {weaponKey}: equip buff entity not found for {equipBuffGuid.GuidHash}");
+                Log.LogWarning($"[Spirit] {weaponKey}: equip buff entity not found for {equipBuffGuid.GuidHash}");
                 return;
             }
 
@@ -91,20 +91,20 @@ internal static class Core
         buffer.Add(new ReplaceAbilityOnSlotBuff { Slot = 0, NewGroupId = s.Primary, CopyCooldown = s.CopyP, Priority = 0 });
         buffer.Add(new ReplaceAbilityOnSlotBuff { Slot = 1, NewGroupId = s.Q, CopyCooldown = s.CopyQ, Priority = 0 });
         buffer.Add(new ReplaceAbilityOnSlotBuff { Slot = 4, NewGroupId = s.E, CopyCooldown = s.CopyE, Priority = 0 });
-        if (Unsheathed.Utilities.Configuration.TryGetTwilightScriptIndices(weaponKey, out var ip, out var iq, out var ie))
+        if (Unsheathed.Utilities.Configuration.TryGetSpiritScriptIndices(weaponKey, out var ip, out var iq, out var ie))
         {
-            if (ip >= 0) AbilityRunScriptsSystemPatch.AddWeaponAbility(s.Primary, ip);
-            if (iq >= 0) AbilityRunScriptsSystemPatch.AddWeaponAbility(s.Q, iq);
-            if (ie >= 0) AbilityRunScriptsSystemPatch.AddWeaponAbility(s.E, ie);
+            if (ip >= 0) AbilityRunScriptsSystemPatch.AddWeaponsSpell(s.Primary, ip);
+            if (iq >= 0) AbilityRunScriptsSystemPatch.AddWeaponsSpell(s.Q, iq);
+            if (ie >= 0) AbilityRunScriptsSystemPatch.AddWeaponsSpell(s.E, ie);
 
-            Log.LogInfo($"[Twilight] Script indices for {weaponKey} = {ip},{iq},{ie}");
+            Log.LogInfo($"[Spirit] Script indices for {weaponKey} = {ip},{iq},{ie}");
         }
 
-        Log.LogInfo($"[Twilight] Override applied for {weaponKey} " +
+        Log.LogInfo($"[Spirit] Override applied for {weaponKey} " +
                     $"(P={s.Primary.GuidHash}, Q={s.Q.GuidHash}, E={s.E.GuidHash}; " +
                     $"copy={s.CopyP},{s.CopyQ},{s.CopyE})");
     }
-    // === /Twilight config overrides ===
+    // === /Spirit config overrides ===
 
 
 
@@ -146,7 +146,7 @@ internal static class Core
 
 
 
-    static readonly bool _classes = ConfigService.ClassSystem;
+    static readonly bool _weapons = ConfigService.WeaponsSystem;
 
 
 
@@ -176,10 +176,10 @@ internal static class Core
 
 
 
-        if (ConfigService.ClassSystem)
+        if (ConfigService.WeaponsSystem)
         {
-            // Configuration.InitializeClassPassiveBuffs();
-            Configuration.GetClassSpellCooldowns();
+            // Configuration.InitializeWeaponsPassiveBuffs();
+           
 
         }
 
@@ -290,7 +290,7 @@ internal static class Core
 
 
 
-        if (ConfigService.TwilightArsenal)
+        if (ConfigService.SpiritArsenal)
         {
 
             if (SystemService.PrefabCollectionSystem._PrefabGuidToEntityMap.TryGetValue(PrefabGUIDs.Item_Weapon_FishingPole_T01, out Entity prefabEntity))
@@ -330,7 +330,7 @@ internal static class Core
                         CopyCooldown = true,
                         Priority = 0
                     });
-                    AbilityRunScriptsSystemPatch.AddWeaponAbility(PrefabGUIDs.AB_Bandit_Fisherman_SpinAttack_AbilityGroup, 0); // 0 = spell index
+                    AbilityRunScriptsSystemPatch.AddWeaponsSpell(PrefabGUIDs.AB_Bandit_Fisherman_SpinAttack_AbilityGroup, 0); // 0 = spell index
 
 
 
@@ -343,7 +343,7 @@ internal static class Core
                         CopyCooldown = true,
                         Priority = 0
                     });
-                    AbilityRunScriptsSystemPatch.AddWeaponAbility(PrefabGUIDs.AB_Bandit_Fisherman_FishHook_AbilityGroup, 0); // 0 = spell index
+                    AbilityRunScriptsSystemPatch.AddWeaponsSpell(PrefabGUIDs.AB_Bandit_Fisherman_FishHook_AbilityGroup, 0); // 0 = spell index
 
                 }
             }
@@ -382,7 +382,7 @@ internal static class Core
                         CopyCooldown = true,
                         Priority = 0
                     });
-                    AbilityRunScriptsSystemPatch.AddWeaponAbility(PrefabGUIDs.AB_Undead_BishopOfDeath_CorpseExplosion_Hard_AbilityGroup, 5); // 0 = spell index
+                    AbilityRunScriptsSystemPatch.AddWeaponsSpell(PrefabGUIDs.AB_Undead_BishopOfDeath_CorpseExplosion_Hard_AbilityGroup, 5); // 0 = spell index
 
 
 
@@ -395,7 +395,7 @@ internal static class Core
                         CopyCooldown = true,
                         Priority = 0
                     });
-                    AbilityRunScriptsSystemPatch.AddWeaponAbility(PrefabGUIDs.AB_Undead_Leader_AreaAttack_Group, 12); // 0 = spell index
+                    AbilityRunScriptsSystemPatch.AddWeaponsSpell(PrefabGUIDs.AB_Undead_Leader_AreaAttack_Group, 12); // 0 = spell index
 
                 }
             }
@@ -423,7 +423,7 @@ internal static class Core
                         CopyCooldown = true,
                         Priority = 0
                     });
-                    AbilityRunScriptsSystemPatch.AddWeaponAbility(PrefabGUIDs.AB_Undead_Leader_SpinningDash_Group, 6); // 0 = spell index
+                    AbilityRunScriptsSystemPatch.AddWeaponsSpell(PrefabGUIDs.AB_Undead_Leader_SpinningDash_Group, 6); // 0 = spell index
 
 
                     // weaponQ (Right click) - slot 1
@@ -435,7 +435,7 @@ internal static class Core
                         CopyCooldown = true,
                         Priority = 0
                     });
-                    AbilityRunScriptsSystemPatch.AddWeaponAbility(PrefabGUIDs.AB_IceRanger_LurkerSpikes_Split_AbilityGroup, 5); // 0 = spell index
+                    AbilityRunScriptsSystemPatch.AddWeaponsSpell(PrefabGUIDs.AB_IceRanger_LurkerSpikes_Split_AbilityGroup, 5); // 0 = spell index
 
 
                     // WeaponE - slot 2
@@ -447,7 +447,7 @@ internal static class Core
                         CopyCooldown = true,
                         Priority = 0
                     });
-                    AbilityRunScriptsSystemPatch.AddWeaponAbility(PrefabGUIDs.AB_IceRanger_IceNova_Large_AbilityGroup, 5); // 0 = spell index
+                    AbilityRunScriptsSystemPatch.AddWeaponsSpell(PrefabGUIDs.AB_IceRanger_IceNova_Large_AbilityGroup, 5); // 0 = spell index
 
                 }
             }
@@ -486,7 +486,7 @@ internal static class Core
                         CopyCooldown = true,
                         Priority = 0
                     });
-                    AbilityRunScriptsSystemPatch.AddWeaponAbility(PrefabGUIDs.AB_ChurchOfLight_Paladin_Dash_AbilityGroup, 7); // 0 = spell index
+                    AbilityRunScriptsSystemPatch.AddWeaponsSpell(PrefabGUIDs.AB_ChurchOfLight_Paladin_Dash_AbilityGroup, 7); // 0 = spell index
 
 
                     // WeaponE - slot 2
@@ -498,7 +498,7 @@ internal static class Core
                         CopyCooldown = true,
                         Priority = 0
                     });
-                    AbilityRunScriptsSystemPatch.AddWeaponAbility(PrefabGUIDs.AB_Paladin_HolyNuke_AbilityGroup, 5); // 0 = spell index
+                    AbilityRunScriptsSystemPatch.AddWeaponsSpell(PrefabGUIDs.AB_Paladin_HolyNuke_AbilityGroup, 5); // 0 = spell index
                 }
             }
 
@@ -537,7 +537,7 @@ internal static class Core
                         CopyCooldown = true,
                         Priority = 0
                     });
-                    AbilityRunScriptsSystemPatch.AddWeaponAbility(PrefabGUIDs.AB_Militia_Scribe_InkFuel_AbilityGroup, 8); // 0 = spell index
+                    AbilityRunScriptsSystemPatch.AddWeaponsSpell(PrefabGUIDs.AB_Militia_Scribe_InkFuel_AbilityGroup, 8); // 0 = spell index
 
 
                     // WeaponE - slot 2
@@ -549,7 +549,7 @@ internal static class Core
                         CopyCooldown = true,
                         Priority = 0
                     });
-                    AbilityRunScriptsSystemPatch.AddWeaponAbility(PrefabGUIDs.AB_Undead_CursedSmith_Summon_WeaponSword_AbilityGroup, 15); // 0 = spell index
+                    AbilityRunScriptsSystemPatch.AddWeaponsSpell(PrefabGUIDs.AB_Undead_CursedSmith_Summon_WeaponSword_AbilityGroup, 15); // 0 = spell index
 
                 }
             }
@@ -594,7 +594,7 @@ internal static class Core
                         CopyCooldown = true,
                         Priority = 0
                     });
-                    AbilityRunScriptsSystemPatch.AddWeaponAbility(PrefabGUIDs.AB_HighLord_SwordDashCleave_AbilityGroup, 5); // 0 = spell index
+                    AbilityRunScriptsSystemPatch.AddWeaponsSpell(PrefabGUIDs.AB_HighLord_SwordDashCleave_AbilityGroup, 5); // 0 = spell index
                 }
             }
 
@@ -630,7 +630,7 @@ internal static class Core
                         CopyCooldown = true,
                         Priority = 0
                     });
-                    AbilityRunScriptsSystemPatch.AddWeaponAbility(PrefabGUIDs.AB_Blackfang_Viper_JavelinRain_AbilityGroup, 2); // 0 = spell index
+                    AbilityRunScriptsSystemPatch.AddWeaponsSpell(PrefabGUIDs.AB_Blackfang_Viper_JavelinRain_AbilityGroup, 2); // 0 = spell index
 
                     // WeaponE - slot 2
                     buffer.Add(new ReplaceAbilityOnSlotBuff
@@ -640,7 +640,7 @@ internal static class Core
                         CopyCooldown = true,
                         Priority = 0
                     });
-                    AbilityRunScriptsSystemPatch.AddWeaponAbility(PrefabGUIDs.AB_Undead_CursedSmith_FloatingSpear_SpearThrust_AbilityGroup, 11); // 0 = spell index
+                    AbilityRunScriptsSystemPatch.AddWeaponsSpell(PrefabGUIDs.AB_Undead_CursedSmith_FloatingSpear_SpearThrust_AbilityGroup, 11); // 0 = spell index
                 }
             }
 
@@ -685,7 +685,7 @@ internal static class Core
                         CopyCooldown = true,
                         Priority = 0
                     });
-                    AbilityRunScriptsSystemPatch.AddWeaponAbility(PrefabGUIDs.AB_Undead_ArenaChampion_CounterStrike_AbilityGroup, 6); // 0 = spell index
+                    AbilityRunScriptsSystemPatch.AddWeaponsSpell(PrefabGUIDs.AB_Undead_ArenaChampion_CounterStrike_AbilityGroup, 6); // 0 = spell index
                 }
             }
 
@@ -720,7 +720,7 @@ internal static class Core
                         CopyCooldown = true,
                         Priority = 0
                     });
-                    AbilityRunScriptsSystemPatch.AddWeaponAbility(PrefabGUIDs.AB_Militia_Scribe_CuttingParchment02_AbilityGroup, 5); // 0 = spell index
+                    AbilityRunScriptsSystemPatch.AddWeaponsSpell(PrefabGUIDs.AB_Militia_Scribe_CuttingParchment02_AbilityGroup, 5); // 0 = spell index
 
                     // WeaponE - slot 2
                     buffer.Add(new ReplaceAbilityOnSlotBuff
@@ -730,7 +730,7 @@ internal static class Core
                         CopyCooldown = true,
                         Priority = 0
                     });
-                    AbilityRunScriptsSystemPatch.AddWeaponAbility(PrefabGUIDs.AB_Militia_Scribe_RazorParchment_AbilityGroup, 5); // 0 = spell index
+                    AbilityRunScriptsSystemPatch.AddWeaponsSpell(PrefabGUIDs.AB_Militia_Scribe_RazorParchment_AbilityGroup, 5); // 0 = spell index
                 }
             }
 
@@ -756,7 +756,7 @@ internal static class Core
                         CopyCooldown = true,
                         Priority = 0
                     });
-                    AbilityRunScriptsSystemPatch.AddWeaponAbility(PrefabGUIDs.AB_CastleMan_SpinShield_AbilityGroup, 5); // 0 = spell index
+                    AbilityRunScriptsSystemPatch.AddWeaponsSpell(PrefabGUIDs.AB_CastleMan_SpinShield_AbilityGroup, 5); // 0 = spell index
 
                     // weaponQ (Right click) - slot 1
                     buffer.Add(new ReplaceAbilityOnSlotBuff
@@ -766,7 +766,7 @@ internal static class Core
                         CopyCooldown = true,
                         Priority = 0
                     });
-                    AbilityRunScriptsSystemPatch.AddWeaponAbility(PrefabGUIDs.AB_Lucie_PlayerAbility_WondrousHealingPotion_Throw_AbilityGroup, 2); // 0 = spell index
+                    AbilityRunScriptsSystemPatch.AddWeaponsSpell(PrefabGUIDs.AB_Lucie_PlayerAbility_WondrousHealingPotion_Throw_AbilityGroup, 2); // 0 = spell index
 
                     // WeaponE - slot 2
                     buffer.Add(new ReplaceAbilityOnSlotBuff
@@ -776,7 +776,7 @@ internal static class Core
                         CopyCooldown = true,
                         Priority = 0
                     });
-                    AbilityRunScriptsSystemPatch.AddWeaponAbility(PrefabGUIDs.AB_Bandit_Foreman_ThrowNet_Group, 4); // 0 = spell index
+                    AbilityRunScriptsSystemPatch.AddWeaponsSpell(PrefabGUIDs.AB_Bandit_Foreman_ThrowNet_Group, 4); // 0 = spell index
                 }
             }
 
@@ -798,15 +798,15 @@ internal static class Core
 
                         // PRIMARY (LMB) slot 0
                         buffer.Add(new ReplaceAbilityOnSlotBuff { Slot = 0, NewGroupId = PrefabGUIDs.AB_VHunter_Jade_Revolvers4_Group, CopyCooldown = true, Priority = 0 });
-                        AbilityRunScriptsSystemPatch.AddWeaponAbility(PrefabGUIDs.AB_VHunter_Jade_Revolvers4_Group, 1);
+                        AbilityRunScriptsSystemPatch.AddWeaponsSpell(PrefabGUIDs.AB_VHunter_Jade_Revolvers4_Group, 1);
 
                         // weaponQ (RMB) slot 1
                         buffer.Add(new ReplaceAbilityOnSlotBuff { Slot = 1, NewGroupId = PrefabGUIDs.AB_VHunter_Jade_Snipe_Group, CopyCooldown = true, Priority = 0 });
-                        AbilityRunScriptsSystemPatch.AddWeaponAbility(PrefabGUIDs.AB_VHunter_Jade_Snipe_Group, 5);
+                        AbilityRunScriptsSystemPatch.AddWeaponsSpell(PrefabGUIDs.AB_VHunter_Jade_Snipe_Group, 5);
 
                         // WeaponE slot 4
                         buffer.Add(new ReplaceAbilityOnSlotBuff { Slot = 4, NewGroupId = PrefabGUIDs.AB_VHunter_Jade_DisablingShot_Group, CopyCooldown = true, Priority = 0 });
-                        AbilityRunScriptsSystemPatch.AddWeaponAbility(PrefabGUIDs.AB_VHunter_Jade_DisablingShot_Group, 11);
+                        AbilityRunScriptsSystemPatch.AddWeaponsSpell(PrefabGUIDs.AB_VHunter_Jade_DisablingShot_Group, 11);
                     }
                 }
             }
@@ -834,7 +834,7 @@ internal static class Core
                         CopyCooldown = true,
                         Priority = 0
                     });
-                    AbilityRunScriptsSystemPatch.AddWeaponAbility(PrefabGUIDs.AB_Militia_BombThrow_AbilityGroup, 2); // 0 = spell index
+                    AbilityRunScriptsSystemPatch.AddWeaponsSpell(PrefabGUIDs.AB_Militia_BombThrow_AbilityGroup, 2); // 0 = spell index
 
                     // weaponQ (Right click) - slot 1
                     buffer.Add(new ReplaceAbilityOnSlotBuff
@@ -844,7 +844,7 @@ internal static class Core
                         CopyCooldown = true,
                         Priority = 0
                     });
-                    AbilityRunScriptsSystemPatch.AddWeaponAbility(PrefabGUIDs.AB_VHunter_Jade_BlastVault_Group, 7); // 0 = spell index
+                    AbilityRunScriptsSystemPatch.AddWeaponsSpell(PrefabGUIDs.AB_VHunter_Jade_BlastVault_Group, 7); // 0 = spell index
 
                     // WeaponE - slot 2
                     buffer.Add(new ReplaceAbilityOnSlotBuff
@@ -854,7 +854,7 @@ internal static class Core
                         CopyCooldown = true,
                         Priority = 0
                     });
-                    AbilityRunScriptsSystemPatch.AddWeaponAbility(PrefabGUIDs.AB_Bandit_ClusterBombThrow_AbilityGroup, 7); // 0 = spell index
+                    AbilityRunScriptsSystemPatch.AddWeaponsSpell(PrefabGUIDs.AB_Bandit_ClusterBombThrow_AbilityGroup, 7); // 0 = spell index
                 }
             }
 
@@ -889,7 +889,7 @@ internal static class Core
                         CopyCooldown = true,
                         Priority = 0
                     });
-                    AbilityRunScriptsSystemPatch.AddWeaponAbility(PrefabGUIDs.AB_Bandit_FrostArrow_RainOfArrows_AbilityGroup, 5); // 0 = spell index
+                    AbilityRunScriptsSystemPatch.AddWeaponsSpell(PrefabGUIDs.AB_Bandit_FrostArrow_RainOfArrows_AbilityGroup, 5); // 0 = spell index
 
                     // WeaponE - slot 2
                     buffer.Add(new ReplaceAbilityOnSlotBuff
@@ -899,7 +899,7 @@ internal static class Core
                         CopyCooldown = true,
                         Priority = 0
                     });
-                    AbilityRunScriptsSystemPatch.AddWeaponAbility(PrefabGUIDs.AB_VHunter_Jade_Stealth_Group, 7); // 0 = spell indexv
+                    AbilityRunScriptsSystemPatch.AddWeaponsSpell(PrefabGUIDs.AB_VHunter_Jade_Stealth_Group, 7); // 0 = spell indexv
                 }
             }
 
@@ -935,7 +935,7 @@ internal static class Core
                         CopyCooldown = true,
                         Priority = 0
                     });
-                    AbilityRunScriptsSystemPatch.AddWeaponAbility(PrefabGUIDs.AB_Prog_HomingNova_Group, 5); // 0 = spell index
+                    AbilityRunScriptsSystemPatch.AddWeaponsSpell(PrefabGUIDs.AB_Prog_HomingNova_Group, 5); // 0 = spell index
 
                     // WeaponE - slot 2
                     buffer.Add(new ReplaceAbilityOnSlotBuff
@@ -945,7 +945,7 @@ internal static class Core
                         CopyCooldown = true,
                         Priority = 0
                     });
-                    AbilityRunScriptsSystemPatch.AddWeaponAbility(PrefabGUIDs.AB_Blackfang_Striker_FistBlock_AbilityGroup, 5); // 0 = spell index
+                    AbilityRunScriptsSystemPatch.AddWeaponsSpell(PrefabGUIDs.AB_Blackfang_Striker_FistBlock_AbilityGroup, 5); // 0 = spell index
                 }
             }
 
@@ -957,7 +957,7 @@ internal static class Core
             }
         
 
-            Twilight_ApplyAllConfigured();
+            Spirit_ApplyAllConfigured();
         }
        
     }
