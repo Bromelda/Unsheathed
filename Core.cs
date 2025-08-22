@@ -5,6 +5,9 @@ using BepInEx.Unity.IL2CPP.Utils.Collections;
 using Unsheathed.Patches;
 using Unsheathed.Resources;
 using Unsheathed.Services;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 
 
@@ -34,6 +37,78 @@ internal static class Core
     public static double ServerTime => ServerGameManager.ServerTime;
     public static double DeltaTime => ServerGameManager.DeltaTime;
     public static ManualLogSource Log => Plugin.LogInstance;
+
+
+   
+
+
+
+    // === Twilight config overrides (single source of truth) ===
+    static void Twilight_ApplyAllConfigured()
+    {
+        // Map every Twilight-able weapon here:
+        Twilight_Apply("Pistols", PrefabGUIDs.EquipBuff_Weapon_Pistols_Base);
+        Twilight_Apply("Crossbow", PrefabGUIDs.EquipBuff_Weapon_Crossbow_Base);
+        Twilight_Apply("Longbow", PrefabGUIDs.EquipBuff_Weapon_Longbow_Base);
+        Twilight_Apply("Sword", PrefabGUIDs.EquipBuff_Weapon_Sword_Base);
+        Twilight_Apply("GreatSword", PrefabGUIDs.EquipBuff_Weapon_GreatSword_Base);
+        Twilight_Apply("TwinBlades", PrefabGUIDs.EquipBuff_Weapon_TwinBlades_Base);
+        Twilight_Apply("Slashers", PrefabGUIDs.EquipBuff_Weapon_Slashers_Base);
+        Twilight_Apply("Daggers", PrefabGUIDs.EquipBuff_Weapon_Daggers_Base);
+        Twilight_Apply("Mace", PrefabGUIDs.EquipBuff_Weapon_Mace_Base);
+        Twilight_Apply("Reaper", PrefabGUIDs.EquipBuff_Weapon_Reaper_Base);
+        Twilight_Apply("Spear", PrefabGUIDs.EquipBuff_Weapon_Spear_Base);
+        Twilight_Apply("Whip", PrefabGUIDs.EquipBuff_Weapon_Whip_Base);
+        Twilight_Apply("Claws", PrefabGUIDs.EquipBuff_Weapon_Claws_Base);
+        Twilight_Apply("FishingPole", PrefabGUIDs.EquipBuff_Weapon_FishingPole_Base);
+    }
+
+    static void Twilight_Apply(string weaponKey, PrefabGUID equipBuffGuid)
+    {
+        // Only act if config provides values (and if weaponKey is in Twilight_Loadout, when specified)
+        if (!Unsheathed.Utilities.Configuration.TryGetTwilightGroups(weaponKey, out var s))
+            return;
+
+        if (!SystemService.PrefabCollectionSystem._PrefabGuidToEntityMap.TryGetValue(equipBuffGuid, out var buffEntity))
+            return;
+
+        if (!buffEntity.TryGetBuffer<ReplaceAbilityOnSlotBuff>(out var buffer))
+        {
+            Log.LogWarning($"[Twilight] {weaponKey}: ReplaceAbilityOnSlotBuff buffer not found on equip buff entity.");
+            if (!SystemService.PrefabCollectionSystem._PrefabGuidToEntityMap.TryGetValue(equipBuffGuid, out  buffEntity))
+            {
+                Log.LogWarning($"[Twilight] {weaponKey}: equip buff entity not found for {equipBuffGuid.GuidHash}");
+                return;
+            }
+
+            return;
+
+        }
+
+        buffer.Clear();
+
+        // Slot indices: 0 = Primary (LMB), 1 = Q (RMB), 4 = E
+        buffer.Add(new ReplaceAbilityOnSlotBuff { Slot = 0, NewGroupId = s.Primary, CopyCooldown = s.CopyP, Priority = 0 });
+        buffer.Add(new ReplaceAbilityOnSlotBuff { Slot = 1, NewGroupId = s.Q, CopyCooldown = s.CopyQ, Priority = 0 });
+        buffer.Add(new ReplaceAbilityOnSlotBuff { Slot = 4, NewGroupId = s.E, CopyCooldown = s.CopyE, Priority = 0 });
+        if (Unsheathed.Utilities.Configuration.TryGetTwilightScriptIndices(weaponKey, out var ip, out var iq, out var ie))
+        {
+            if (ip >= 0) AbilityRunScriptsSystemPatch.AddWeaponAbility(s.Primary, ip);
+            if (iq >= 0) AbilityRunScriptsSystemPatch.AddWeaponAbility(s.Q, iq);
+            if (ie >= 0) AbilityRunScriptsSystemPatch.AddWeaponAbility(s.E, ie);
+
+            Log.LogInfo($"[Twilight] Script indices for {weaponKey} = {ip},{iq},{ie}");
+        }
+
+        Log.LogInfo($"[Twilight] Override applied for {weaponKey} " +
+                    $"(P={s.Primary.GuidHash}, Q={s.Q.GuidHash}, E={s.E.GuidHash}; " +
+                    $"copy={s.CopyP},{s.CopyQ},{s.CopyE})");
+    }
+    // === /Twilight config overrides ===
+
+
+
+
 
     public static void ApplyEquipBuff(Entity entity, int groupGuid, int slot = 1)
     {
@@ -705,51 +780,37 @@ internal static class Core
                 }
             }
 
+            // Map the legendary item to its equip buff (unchanged)
             if (SystemService.PrefabCollectionSystem._PrefabGuidToEntityMap.TryGetValue(PrefabGUIDs.Item_Weapon_Pistols_Legendary_T06, out prefabEntity))
             {
-                prefabEntity.With((ref EquippableData equippableData) =>
-                {
-                    equippableData.BuffGuid = PrefabGUIDs.EquipBuff_Weapon_Pistols_Base;
-                });
+                prefabEntity.With((ref EquippableData eq) => eq.BuffGuid = PrefabGUIDs.EquipBuff_Weapon_Pistols_Base);
             }
 
+            // Apply from config if available; else keep existing defaults below
             if (SystemService.PrefabCollectionSystem._PrefabGuidToEntityMap.TryGetValue(PrefabGUIDs.EquipBuff_Weapon_Pistols_Base, out buffEntity))
             {
-                if (buffEntity.TryGetBuffer<ReplaceAbilityOnSlotBuff>(out var buffer))
+               
                 {
-                    buffer.Clear();
-
-                    // PRIMARY (Left click) - slot 0
-                    buffer.Add(new ReplaceAbilityOnSlotBuff
+                    // --- your existing default block (unchanged) ---
+                    if (buffEntity.TryGetBuffer<ReplaceAbilityOnSlotBuff>(out var buffer))
                     {
-                        Slot = 0,
-                        NewGroupId = PrefabGUIDs.AB_VHunter_Jade_Revolvers4_Group,
-                        CopyCooldown = true,
-                        Priority = 0
-                    });
-                    AbilityRunScriptsSystemPatch.AddWeaponAbility(PrefabGUIDs.AB_VHunter_Jade_Revolvers4_Group, 1); // 0 = spell index
+                        buffer.Clear();
 
-                    // weaponQ (Right click) - slot 1
-                    buffer.Add(new ReplaceAbilityOnSlotBuff
-                    {
-                        Slot = 1,
-                        NewGroupId = PrefabGUIDs.AB_VHunter_Jade_Snipe_Group,
-                        CopyCooldown = true,
-                        Priority = 0
-                    });
-                    AbilityRunScriptsSystemPatch.AddWeaponAbility(PrefabGUIDs.AB_VHunter_Jade_Snipe_Group, 5); // 0 = spell index
+                        // PRIMARY (LMB) slot 0
+                        buffer.Add(new ReplaceAbilityOnSlotBuff { Slot = 0, NewGroupId = PrefabGUIDs.AB_VHunter_Jade_Revolvers4_Group, CopyCooldown = true, Priority = 0 });
+                        AbilityRunScriptsSystemPatch.AddWeaponAbility(PrefabGUIDs.AB_VHunter_Jade_Revolvers4_Group, 1);
 
-                    // WeaponE - slot 2
-                    buffer.Add(new ReplaceAbilityOnSlotBuff
-                    {
-                        Slot = 4,
-                        NewGroupId = PrefabGUIDs.AB_VHunter_Jade_DisablingShot_Group,
-                        CopyCooldown = true,
-                        Priority = 0
-                    });
-                    AbilityRunScriptsSystemPatch.AddWeaponAbility(PrefabGUIDs.AB_VHunter_Jade_DisablingShot_Group, 11); // 0 = spell index
+                        // weaponQ (RMB) slot 1
+                        buffer.Add(new ReplaceAbilityOnSlotBuff { Slot = 1, NewGroupId = PrefabGUIDs.AB_VHunter_Jade_Snipe_Group, CopyCooldown = true, Priority = 0 });
+                        AbilityRunScriptsSystemPatch.AddWeaponAbility(PrefabGUIDs.AB_VHunter_Jade_Snipe_Group, 5);
+
+                        // WeaponE slot 4
+                        buffer.Add(new ReplaceAbilityOnSlotBuff { Slot = 4, NewGroupId = PrefabGUIDs.AB_VHunter_Jade_DisablingShot_Group, CopyCooldown = true, Priority = 0 });
+                        AbilityRunScriptsSystemPatch.AddWeaponAbility(PrefabGUIDs.AB_VHunter_Jade_DisablingShot_Group, 11);
+                    }
                 }
             }
+
 
             if (SystemService.PrefabCollectionSystem._PrefabGuidToEntityMap.TryGetValue(PrefabGUIDs.Item_Weapon_Crossbow_Legendary_T06, out prefabEntity))
             {
@@ -894,33 +955,11 @@ internal static class Core
             {
                 prefabEntity.With((ref EquippableData equippableData) => equippableData.BuffGuid = PrefabGUIDs.EquipBuff_Weapon_DualHammers_Ability03);
             }
+        
 
-            /*
-            if (SystemService.PrefabCollectionSystem._PrefabGuidToEntityMap.TryGetValue(PrefabGUIDs.Item_Weapon_Reaper_T09_ShadowMatter, out prefabEntity))
-            {
-                prefabEntity.With((ref EquippableData equippableData) =>
-                {
-                    equippableData.BuffGuid = PrefabGUIDs.EquipBuff_Weapon_Pollaxe_Ability03;
-                });
-            }
-
-            if (SystemService.PrefabCollectionSystem._PrefabGuidToEntityMap.TryGetValue(PrefabGUIDs.Item_Weapon_TwinBlades_T09_ShadowMatter, out prefabEntity))
-            {
-                prefabEntity.With((ref EquippableData equippableData) =>
-                {
-                    equippableData.BuffGuid = PrefabGUIDs.EquipBuff_Weapon_Pollaxe_Ability03;
-                });
-            }
-
-            if (SystemService.PrefabCollectionSystem._PrefabGuidToEntityMap.TryGetValue(PrefabGUIDs.Item_Weapon_GreatSword_T09_ShadowMatter, out prefabEntity))
-            {
-                prefabEntity.With((ref EquippableData equippableData) =>
-                {
-                    equippableData.BuffGuid = PrefabGUIDs.EquipBuff_Weapon_Pollaxe_Ability03;
-                });
-            }
-            */
+            Twilight_ApplyAllConfigured();
         }
+       
     }
 
 
