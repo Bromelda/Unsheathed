@@ -317,7 +317,7 @@ new ConfigEntryDefinition(
             new ConfigEntryDefinition(
     "General",
     "Spirit_Scripts_Crossbow",
-    "3,7,7",
+    "10,5,9",
     "Run script indices for Crossbow Spirit abilities as 'P,Q,E'. Use -1 to skip a slot."
 ),
    
