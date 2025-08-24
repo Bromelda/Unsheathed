@@ -1,223 +1,302 @@
 ﻿
-using Unsheathed.Patches;
-using Unsheathed.Services;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
-
 using BepInEx;
-
-using Unsheathed.Resources; // for PrefabGUIDs names
-
-
 using ProjectM;
 using Stunlock.Core;
+using Unsheathed.Resources;   // PrefabGUIDs names
+using Unsheathed.Services;    // ConfigService
 
-namespace Unsheathed.Utilities;
-internal static class Configuration
+namespace Unsheathed.Utilities
 {
-
-    public static List<int> ParseIntegersFromString(string configString)
+    // Make it public so Core can call into it
+    public static class Configuration
     {
-        if (string.IsNullOrEmpty(configString))
+        // -------- Small helpers --------
+
+        public static List<int> ParseIntegersFromString(string configString)
         {
-            return [];
-        }
-
-        return [.. configString.Split(',').Select(int.Parse)];
-    }
-    public static List<T> ParseEnumsFromString<T>(string configString) where T : struct, Enum
-    {
-        if (string.IsNullOrWhiteSpace(configString))
-            return [];
-
-        List<T> result = [];
-
-        foreach (var part in configString.Split(','))
-        {
-            if (Enum.TryParse<T>(part.Trim(), ignoreCase: true, out var value))
+            var list = new List<int>();
+            if (string.IsNullOrWhiteSpace(configString)) return list;
+            foreach (var part in configString.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries))
             {
-                result.Add(value);
+                if (int.TryParse(part, NumberStyles.Integer, CultureInfo.InvariantCulture, out var v))
+                    list.Add(v);
             }
+            return list;
         }
 
-        return result;
-    }
-
-
-   
-
-
-    // === Spirit config support ===
-    public struct SpiritSlots
-    {
-        public PrefabGUID Primary;
-        public PrefabGUID Q;
-        public PrefabGUID E;
-        public bool CopyP;
-        public bool CopyQ;
-        public bool CopyE;
-    }
-
-    static readonly Lazy<Dictionary<string, PrefabGUID>> _prefabMap = new(() =>
-    {
-        var dict = new Dictionary<string, PrefabGUID>(StringComparer.OrdinalIgnoreCase);
-
-        // Reflect all public static PrefabGUID fields on PrefabGUIDs
-        try
+        public static List<T> ParseEnumsFromString<T>(string configString) where T : struct, Enum
         {
-            foreach (var f in typeof(PrefabGUIDs).GetFields(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static))
+            var list = new List<T>();
+            if (string.IsNullOrWhiteSpace(configString)) return list;
+
+            foreach (var part in configString.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries))
             {
-                if (f.FieldType == typeof(PrefabGUID))
+                if (Enum.TryParse<T>(part, true, out var v))
+                    list.Add(v);
+            }
+            return list;
+        }
+
+        // -------- Prefab name/int -> PrefabGUID map --------
+
+        static readonly Lazy<Dictionary<string, PrefabGUID>> _prefabMap = new Lazy<Dictionary<string, PrefabGUID>>(() =>
+        {
+            var dict = new Dictionary<string, PrefabGUID>(StringComparer.OrdinalIgnoreCase);
+
+            // Reflect public static PrefabGUID fields on PrefabGUIDs
+            try
+            {
+                foreach (var f in typeof(PrefabGUIDs).GetFields(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static))
                 {
-                    var val = (PrefabGUID)f.GetValue(null);
-                    dict[f.Name] = val;
+                    if (f.FieldType == typeof(PrefabGUID))
+                    {
+                        var val = (PrefabGUID)f.GetValue(null);
+                        dict[f.Name] = val;
+                    }
                 }
             }
-        }
-        catch (Exception ex)
-        {
-            global::Unsheathed.Core.Log.LogWarning($"[Spirit] PrefabGUIDs reflection failed: {ex.Message}");
-        }
-
-        // Optional: merge PrefabIndex.json if present next to the plugin config
-        try
-        {
-            var path = Path.Combine(BepInEx.Paths.ConfigPath, MyPluginInfo.PLUGIN_NAME, "PrefabIndex.json");
-            if (File.Exists(path))
+            catch (Exception ex)
             {
-                var json = File.ReadAllText(path);
-                var tmp = JsonSerializer.Deserialize<Dictionary<string, int>>(json);
-                if (tmp != null)
+                Core.Log.LogWarning($"[Spirit] PrefabGUIDs reflection failed: {ex.Message}");
+            }
+
+            // Optional: merge PrefabIndex.json from the plugin’s config folder
+            try
+            {
+                var path = Path.Combine(BepInEx.Paths.ConfigPath, MyPluginInfo.PLUGIN_NAME, "PrefabIndex.json");
+                if (File.Exists(path))
                 {
-                    foreach (var kv in tmp)
-                        if (!dict.ContainsKey(kv.Key))
-                            dict[kv.Key] = new PrefabGUID(kv.Value);
+                    var json = File.ReadAllText(path);
+                    var tmp = JsonSerializer.Deserialize<Dictionary<string, int>>(json);
+                    if (tmp != null)
+                    {
+                        foreach (var kv in tmp)
+                            if (!dict.ContainsKey(kv.Key))
+                                dict[kv.Key] = new PrefabGUID(kv.Value);
+                    }
                 }
             }
-        }
-        catch (Exception ex)
+            catch (Exception ex)
+            {
+                Core.Log.LogWarning($"[Spirit] PrefabIndex.json load failed (optional): {ex.Message}");
+            }
+
+            return dict;
+        });
+
+        static bool TryParsePrefab(string token, out PrefabGUID guid)
         {
-            global::Unsheathed.Core.Log.LogWarning($"[Spirit] PrefabIndex.json load failed (optional): {ex.Message}");
+            guid = default;
+            if (string.IsNullOrWhiteSpace(token)) return false;
+
+            // raw int?
+            if (int.TryParse(token.Trim(), NumberStyles.Integer, CultureInfo.InvariantCulture, out int i))
+            {
+                guid = new PrefabGUID(i);
+                return true;
+            }
+
+            // name lookup
+            if (_prefabMap.Value.TryGetValue(token.Trim(), out guid)) return true;
+
+            Core.Log.LogWarning($"[Spirit] Unknown prefab token '{token}'.");
+            return false;
         }
 
-        return dict;
-    });
+        // -------- Spirit group config (per-weapon Primary/Q/E) --------
 
-    static bool TryParsePrefab(string token, out PrefabGUID guid)
-    {
-        guid = default;
-        if (string.IsNullOrWhiteSpace(token)) return false;
-
-        // raw int?
-        if (int.TryParse(token.Trim(), NumberStyles.Integer, CultureInfo.InvariantCulture, out int i))
+        public struct SpiritSlots
         {
-            guid = new PrefabGUID(i);
+            public PrefabGUID Primary;
+            public PrefabGUID Q;
+            public PrefabGUID E;
+            public bool CopyP;
+            public bool CopyQ;
+            public bool CopyE;
+        }
+
+        static bool TryParseSpiritGroups(string text, out SpiritSlots slots)
+        {
+            slots = default;
+            if (string.IsNullOrWhiteSpace(text)) return false;
+
+            // primary=...;q=...;e=...;copy=true,true,true
+            var parts = text.Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+            string p = null, q = null, e = null, copy = null;
+
+            foreach (var part in parts)
+            {
+                var kv = part.Split('=', 2, StringSplitOptions.TrimEntries);
+                if (kv.Length != 2) continue;
+
+                switch (kv[0].ToLowerInvariant())
+                {
+                    case "primary": p = kv[1]; break;
+                    case "q": q = kv[1]; break;
+                    case "e": e = kv[1]; break;
+                    case "copy": copy = kv[1]; break;
+                }
+            }
+
+            if (!TryParsePrefab(p, out slots.Primary)) return false;
+            if (!TryParsePrefab(q, out slots.Q)) return false;
+            if (!TryParsePrefab(e, out slots.E)) return false;
+
+            slots.CopyP = slots.CopyQ = slots.CopyE = true; // defaults
+            if (!string.IsNullOrWhiteSpace(copy))
+            {
+                var c = copy.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+                if (c.Length == 3)
+                {
+                    bool.TryParse(c[0], out slots.CopyP);
+                    bool.TryParse(c[1], out slots.CopyQ);
+                    bool.TryParse(c[2], out slots.CopyE);
+                }
+            }
+
             return true;
         }
 
-        // name lookup
-        if (_prefabMap.Value.TryGetValue(token.Trim(), out guid)) return true;
-
-        global::Unsheathed.Core.Log.LogWarning($"[Spirit] Unknown prefab token '{token}'.");
-        return false;
-    }
-
-    static bool TryParseSpiritGroups(string text, out SpiritSlots slots)
-    {
-        slots = default;
-        if (string.IsNullOrWhiteSpace(text)) return false;
-
-        // primary=...;q=...;e=...;copy=true,true,true
-        var parts = text.Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-        string p = null, q = null, e = null, copy = null;
-
-        foreach (var part in parts)
+        public static bool TryGetSpiritGroups(string weaponKey, out SpiritSlots slots)
         {
-            var kv = part.Split('=', 2, StringSplitOptions.TrimEntries);
-            if (kv.Length != 2) continue;
+            slots = default;
+            if (string.IsNullOrWhiteSpace(weaponKey)) return false;
 
-            switch (kv[0].ToLowerInvariant())
+            // Optional: filter by Spirit_Loadout list
+            if (ConfigService.ConfigInitialization.FinalConfigValues.TryGetValue("Spirit_Loadout", out var loadoutObj))
             {
-                case "primary": p = kv[1]; break;
-                case "q": q = kv[1]; break;
-                case "e": e = kv[1]; break;
-                case "copy": copy = kv[1]; break;
+                var loadoutStr = Convert.ToString(loadoutObj) ?? "";
+                if (!string.IsNullOrWhiteSpace(loadoutStr))
+                {
+                    var list = loadoutStr.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+                    if (!list.Any(x => string.Equals(x, weaponKey, StringComparison.OrdinalIgnoreCase)))
+                        return false;
+                }
             }
+
+            var key = $"Spirit_Groups_{weaponKey}";
+            if (!ConfigService.ConfigInitialization.FinalConfigValues.TryGetValue(key, out var obj)) return false;
+
+            var text = Convert.ToString(obj) ?? "";
+            return TryParseSpiritGroups(text, out slots);
         }
 
-        if (!TryParsePrefab(p, out slots.Primary)) return false;
-        if (!TryParsePrefab(q, out slots.Q)) return false;
-        if (!TryParsePrefab(e, out slots.E)) return false;
-
-        slots.CopyP = slots.CopyQ = slots.CopyE = true; // default copy flags
-        if (!string.IsNullOrWhiteSpace(copy))
+        // Parses: [General] Spirit_Scripts_<Weapon> = "P,Q,E"
+        // Returns false if key missing/blank/malformed. Use -1 to skip a slot.
+        public static bool TryGetSpiritScriptIndices(string weaponKey, out int p, out int q, out int e)
         {
-            var c = copy.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
-            if (c.Length == 3)
-            {
-                bool.TryParse(c[0], out slots.CopyP);
-                bool.TryParse(c[1], out slots.CopyQ);
-                bool.TryParse(c[2], out slots.CopyE);
-            }
+            p = q = e = -1;
+            if (string.IsNullOrWhiteSpace(weaponKey)) return false;
+
+            if (!ConfigService.ConfigInitialization.FinalConfigValues.TryGetValue($"Spirit_Scripts_{weaponKey}", out var obj))
+                return false;
+
+            var text = Convert.ToString(obj) ?? "";
+            if (string.IsNullOrWhiteSpace(text)) return false;
+
+            var parts = text.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+            if (parts.Length != 3) return false;
+
+            var ok =
+                int.TryParse(parts[0], NumberStyles.Integer, CultureInfo.InvariantCulture, out p) &
+                int.TryParse(parts[1], NumberStyles.Integer, CultureInfo.InvariantCulture, out q) &
+                int.TryParse(parts[2], NumberStyles.Integer, CultureInfo.InvariantCulture, out e);
+
+            return ok;
         }
 
-        return true;
-    }
+        // -------- Per-slot animation speed multipliers (Primary/Q/E) --------
 
-    public static bool TryGetSpiritGroups(string weaponKey, out SpiritSlots slots)
-    {
-        slots = default;
-        if (string.IsNullOrWhiteSpace(weaponKey)) return false;
+        public struct SpeedMults { public float Primary, Q, E; }
 
-        // Respect optional loadout filter
-        if (Services.ConfigService.ConfigInitialization.FinalConfigValues.TryGetValue("Spirit_Loadout", out var loadoutObj))
+        static float ParseMult(string token)
         {
-            var loadoutStr = Convert.ToString(loadoutObj) ?? "";
-            if (!string.IsNullOrWhiteSpace(loadoutStr))
-            {
-                var list = loadoutStr.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
-                if (!list.Any(x => string.Equals(x, weaponKey, StringComparison.OrdinalIgnoreCase)))
-                    return false;
-            }
+            if (string.IsNullOrWhiteSpace(token)) return 0f;
+            if (!float.TryParse(token.Trim(), NumberStyles.Float, CultureInfo.InvariantCulture, out var f)) return 0f;
+            if (f < 0.5f) f = 0.5f;
+            if (f > 3.0f) f = 3.0f;
+            return f;
         }
 
-        string key = $"Spirit_Groups_{weaponKey}";
-        if (!Services.ConfigService.ConfigInitialization.FinalConfigValues.TryGetValue(key, out var obj)) return false;
+        static SpeedMults ParseSpeedMults(string s)
+        {
+            var r = new SpeedMults();
+            if (string.IsNullOrWhiteSpace(s)) return r;
 
-        var text = Convert.ToString(obj) ?? "";
-        return TryParseSpiritGroups(text, out slots);
+            foreach (var part in s.Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+            {
+                var kv = part.Split('=', 2, StringSplitOptions.TrimEntries);
+                if (kv.Length != 2) continue;
+
+                var val = ParseMult(kv[1]);
+                switch (kv[0].ToLowerInvariant())
+                {
+                    case "primary": r.Primary = val; break;
+                    case "q": r.Q       = val; break;
+                    case "e": r.E       = val; break;
+                }
+            }
+            return r;
+        }
+
+        static bool TryGetValue(string key, out string value)
+        {
+            value = null;
+            if (!ConfigService.ConfigInitialization.FinalConfigValues.TryGetValue(key, out var obj))
+                return false;
+            value = Convert.ToString(obj) ?? "";
+            return true;
+        }
+
+        static SpeedMults GetMergedSpeedMults(string weaponKey)
+        {
+            TryGetValue("Spirit_SpeedMult_Default", out var defStr);
+            var def = ParseSpeedMults(defStr);
+
+            TryGetValue($"Spirit_SpeedMult_{weaponKey}", out var rowStr);
+            var row = ParseSpeedMults(rowStr);
+
+            float Eff(float rowV, float defV) => rowV > 0f ? rowV : (defV > 0f ? defV : 1.0f);
+
+            return new SpeedMults
+            {
+                Primary = Eff(row.Primary, def.Primary),
+                Q       = Eff(row.Q, def.Q),
+                E       = Eff(row.E, def.E),
+            };
+        }
+
+        // Call this after you assign Spirit slots (Primary/Q/E) for a weapon
+        public static void TryApplySpiritSpeedMultipliers(string weaponKey, PrefabGUID primaryGroup, PrefabGUID qGroup, PrefabGUID eGroup)
+        {
+            var m = GetMergedSpeedMults(weaponKey);
+
+            if (primaryGroup.GuidHash != 0)
+            {
+                Patches.AbilityRunScriptsSystemPatch.RegisterGroupSlot(primaryGroup, Patches.AbilityRunScriptsSystemPatch.SlotKind.Primary);
+                Patches.AbilityRunScriptsSystemPatch.SetGroupSpeedMultiplier(primaryGroup, m.Primary);
+            }
+            if (qGroup.GuidHash != 0)
+            {
+                Patches.AbilityRunScriptsSystemPatch.RegisterGroupSlot(qGroup, Patches.AbilityRunScriptsSystemPatch.SlotKind.Q);
+                Patches.AbilityRunScriptsSystemPatch.SetGroupSpeedMultiplier(qGroup, m.Q);
+            }
+            if (eGroup.GuidHash != 0)
+            {
+                Patches.AbilityRunScriptsSystemPatch.RegisterGroupSlot(eGroup, Patches.AbilityRunScriptsSystemPatch.SlotKind.E);
+                Patches.AbilityRunScriptsSystemPatch.SetGroupSpeedMultiplier(eGroup, m.E);
+            }
+        }
     }
-    // === /Spirit config support ===
-    // Parses: [General] Spirit_Scripts_<Weapon> = "P,Q,E"
-    // Returns false if key missing/blank/malformed. Use -1 to skip a slot.
-    public static bool TryGetSpiritScriptIndices(string weaponKey, out int p, out int q, out int e)
-    {
-        p = q = e = -1;
-        if (string.IsNullOrWhiteSpace(weaponKey)) return false;
-
-        if (!Services.ConfigService.ConfigInitialization.FinalConfigValues
-                .TryGetValue($"Spirit_Scripts_{weaponKey}", out var obj))
-            return false;
-
-        var text = Convert.ToString(obj) ?? "";
-        if (string.IsNullOrWhiteSpace(text)) return false;
-
-        var parts = text.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
-        if (parts.Length != 3) return false;
-
-        // allow negatives to mean "skip"
-        bool ok = int.TryParse(parts[0], NumberStyles.Integer, CultureInfo.InvariantCulture, out p)
-               &  int.TryParse(parts[1], NumberStyles.Integer, CultureInfo.InvariantCulture, out q)
-               &  int.TryParse(parts[2], NumberStyles.Integer, CultureInfo.InvariantCulture, out e);
-        return ok;
-    }
-
 }
-    
 
-    
+
+
+
 
