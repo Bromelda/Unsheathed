@@ -1,4 +1,4 @@
-using Unsheathed.Resources;
+ï»¿using Unsheathed.Resources;
 using Unsheathed.Services;
 using Unsheathed.Utilities;
 using HarmonyLib;
@@ -8,7 +8,7 @@ using ProjectM.Scripting;
 using Stunlock.Core;
 using Unity.Collections;
 using Unity.Entities;
-
+using System.Collections.Generic;
 
 
 namespace Unsheathed.Patches;
@@ -20,11 +20,111 @@ internal static class AbilityRunScriptsSystemPatch
 
     static readonly bool _weapons = ConfigService.WeaponsSystem;
 
-
- 
     const float Weapon_COOLDOWN_FACTOR = 1f;
     public static IReadOnlyDictionary<PrefabGUID, int> WeaponsSpells => _weaponsSpells;
-    static readonly Dictionary<PrefabGUID, int> _weaponsSpells = [];
+    static readonly Dictionary<PrefabGUID, int> _weaponsSpells = new Dictionary<PrefabGUID, int>();
+
+
+
+
+
+
+
+
+
+
+
+
+    // Which stat to touch for a given group (Primary uses PrimaryAttackSpeed; Q/E use AbilityAttackSpeed)
+    public enum SlotKind : byte { Primary, Q, E }
+
+    // Map SpiritArsenal ability group -> slot
+    static readonly Dictionary<PrefabGUID, SlotKind> _groupSlot = new();
+
+    // Per-group speed multiplier (e.g., 1.0 = no change, 1.8 = 80% faster)
+    static readonly Dictionary<PrefabGUID, float> _groupMultiplier = new();
+
+    // Backup of original values per character so we can restore exactly
+    struct AbilityBarBackup { public float Ability; public float Primary; }
+    static readonly Dictionary<Entity, AbilityBarBackup> _abilityBarBackup = new();
+
+    // API you call from Core/Spirit setup:
+    public static void RegisterGroupSlot(PrefabGUID group, SlotKind slot) => _groupSlot[group] = slot;
+    public static void SetGroupSpeedMultiplier(PrefabGUID group, float multiplier)
+    {
+        // clamp to sane bounds to avoid silly values
+        if (multiplier < 0.5f) multiplier = 0.5f;
+        else if (multiplier > 3.0f) multiplier = 3.0f;
+        _groupMultiplier[group] = multiplier;
+    }
+
+    static void ApplyAbilityBarOverrideForSlot(EntityManager em, Entity character, SlotKind slot, float multiplier)
+    {
+        if (character == Entity.Null || !em.Exists(character)) return;
+        if (!em.HasComponent<AbilityBar_Shared>(character)) return;
+
+        var ab = em.GetComponentData<AbilityBar_Shared>(character);
+
+        // Save originals once; presence in the dict means "override active"
+        if (!_abilityBarBackup.ContainsKey(character))
+        {
+            _abilityBarBackup[character] = new AbilityBarBackup
+            {
+                Ability = ab.AbilityAttackSpeed._Value,
+                Primary = ab.PrimaryAttackSpeed._Value
+            };
+        }
+
+        var orig = _abilityBarBackup[character];
+
+        // Touch only the relevant stat for the slot being cast
+        switch (slot)
+        {
+            case SlotKind.Primary:
+                ab.PrimaryAttackSpeed._Value = orig.Primary * multiplier;
+                break;
+            case SlotKind.Q:
+            case SlotKind.E:
+                ab.AbilityAttackSpeed._Value = orig.Ability * multiplier;
+                break;
+        }
+
+        em.SetComponentData(character, ab);
+    }
+
+    static void RestoreAbilityBar(EntityManager em, Entity character)
+    {
+        if (character == Entity.Null || !em.Exists(character)) return;
+        if (_abilityBarBackup.TryGetValue(character, out var orig) && em.HasComponent<AbilityBar_Shared>(character))
+        {
+            var ab = em.GetComponentData<AbilityBar_Shared>(character);
+            ab.AbilityAttackSpeed._Value = orig.Ability;
+            ab.PrimaryAttackSpeed._Value = orig.Primary;
+            em.SetComponentData(character, ab);
+        }
+        _abilityBarBackup.Remove(character);
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -36,7 +136,7 @@ internal static class AbilityRunScriptsSystemPatch
     [HarmonyPrefix]
     static void OnUpdatePrefix(AbilityRunScriptsSystem __instance)
     {
-        // Use your repo’s init guard (you can swap to GameSystems.Initialized if you actually have that symbol)
+        // Use your repoâ€™s init guard (you can swap to GameSystems.Initialized if you actually have that symbol)
         if (!Core._initialized) return;
 
         var castStartedEvents = __instance._OnCastStartedQuery.ToEntityArray(Allocator.Temp);       // First event
@@ -49,7 +149,7 @@ internal static class AbilityRunScriptsSystemPatch
             var em = __instance.EntityManager;
 
             HandleCastStarted(em, castStartedEvents);
-            HandleCastFinished(em, preCastFinishedEvents);
+            HandlePreCastFinished(em, preCastFinishedEvents);
             HandlePostCastEnded(em, postCastEndedEvents);   // keeps your cooldown behavior
             HandleInterrupted(em, interruptedEvents);
         }
@@ -66,26 +166,59 @@ internal static class AbilityRunScriptsSystemPatch
 
     static void HandleCastStarted(EntityManager em, NativeArray<Entity> events)
     {
-        // TODO: your “on cast start” logic
-        // Pattern:
-        // for (int i=0;i<events.Length;i++) { var e=events[i];
-        //   if (!em.Exists(e) || !em.HasComponent<AbilityCastStartedEvent>(e)) continue;
-        //   var ev = em.GetComponentData<AbilityCastStartedEvent>(e);
-        //   // ev.Character, ev.AbilityGroup ...
-        // }
+        for (int i = 0; i < events.Length; i++)
+        {
+            var e = events[i];
+            if (!em.Exists(e) || !em.HasComponent<AbilityCastStartedEvent>(e)) continue;
+
+            var ev = em.GetComponentData<AbilityCastStartedEvent>(e);
+            if (ev.Character == Entity.Null || ev.AbilityGroup == Entity.Null) continue;
+            if (!em.Exists(ev.Character) || !em.Exists(ev.AbilityGroup)) continue;
+            if (!ev.Character.IsPlayer()) continue;
+
+            var group = ev.AbilityGroup.GetPrefabGuid();
+
+            // Only affect your custom SpiritArsenal abilities you registered:
+            if (_groupSlot.TryGetValue(group, out var slot) && _groupMultiplier.TryGetValue(group, out var mult))
+
+            {
+                Core.Log.LogInfo($"[SpiritSpeed] Apply {mult:0.00} to {slot} for group {group.GuidHash} on {ev.Character.Index}");
+
+
+                // Guard to avoid double-applying if multiple cast-start events fire
+                if (!_abilityBarBackup.ContainsKey(ev.Character))
+                    ApplyAbilityBarOverrideForSlot(em, ev.Character, slot, mult);
+            }
+        }
     }
 
-    static void HandleCastFinished(EntityManager em, NativeArray<Entity> events)
+
+    static void HandlePreCastFinished(EntityManager em, NativeArray<Entity> events)
     {
-        // TODO: your “pre-cast finished” logic
-        // Use AbilityPreCastFinishedEvent
+        for (int i = 0; i < events.Length; i++)
+        {
+            var e = events[i];
+            if (!em.Exists(e) || !em.HasComponent<AbilityPreCastFinishedEvent>(e)) continue;
+            var ev = em.GetComponentData<AbilityPreCastFinishedEvent>(e);
+            if (ev.Character == Entity.Null || !em.Exists(ev.Character)) continue;
+
+            RestoreAbilityBar(em, ev.Character);
+        }
     }
 
     static void HandleInterrupted(EntityManager em, NativeArray<Entity> events)
     {
-        // TODO: your “on interrupt” cleanup logic
-        // Use AbilityInterruptedEvent
+        for (int i = 0; i < events.Length; i++)
+        {
+            var e = events[i];
+            if (!em.Exists(e) || !em.HasComponent<AbilityInterruptedEvent>(e)) continue;
+            var ev = em.GetComponentData<AbilityInterruptedEvent>(e);
+            if (ev.Character == Entity.Null || !em.Exists(ev.Character)) continue;
+
+            RestoreAbilityBar(em, ev.Character);
+        }
     }
+
 
     static void HandlePostCastEnded(EntityManager em, NativeArray<Entity> events)
     {
