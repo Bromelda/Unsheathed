@@ -334,7 +334,80 @@ new ConfigEntryDefinition(
     "Spirit_Scripts_Claws",
     "-1,5,5",
     "Run script indices for Claws Spirit abilities as 'P,Q,E'. Use -1 to skip a slot."
-)
+),
+
+
+
+
+
+
+
+
+
+
+
+            // Default multipliers (used as fallback for any weapon not explicitly set)
+new ConfigEntryDefinition(
+  "General", "Spirit_SpeedMult_Default",
+  "primary=1.60;q=1.80;e=1.60",
+  "Per-slot animation speed multipliers (0.5–3.0) used when a weapon row is missing."
+),
+
+
+            new ConfigEntryDefinition(
+  "General",
+  "Spirit_SpeedMult_AbilityMap",
+  "", // example: "AB_VHunter_Jade_Snipe_Group:1.90,-328302080=2.20"
+  "CSV map of AbilityGroup (name or int) -> speed multiplier (0.5–3.0). Example: AB_VHunter_Jade_Snipe_Group:1.90,-328302080=2.20"
+),
+
+// Example weapon rows (copy & tweak per weapon you use)
+new ConfigEntryDefinition("General","Spirit_SpeedMult_FishingPole","primary=1.60;q=1.80;e=1.60","FishingPole"),
+new ConfigEntryDefinition("General","Spirit_SpeedMult_Daggers","primary=1.70;q=1.80;e=1.70","Daggers"),
+new ConfigEntryDefinition("General","Spirit_SpeedMult_Reaper","primary=1.60;q=1.90;e=1.60","Reaper"),
+new ConfigEntryDefinition("General","Spirit_SpeedMult_Mace","primary=1.60;q=1.80;e=1.60","Mace"),
+new ConfigEntryDefinition("General","Spirit_SpeedMult_Sword","primary=1.60;q=1.80;e=1.60","Sword"),
+new ConfigEntryDefinition("General","Spirit_SpeedMult_GreatSword","primary=1.60;q=2.00;e=1.60","GreatSword"),
+new ConfigEntryDefinition("General","Spirit_SpeedMult_Spear","primary=1.60;q=1.90;e=1.60","Spear"),
+new ConfigEntryDefinition("General","Spirit_SpeedMult_TwinBlades","primary=1.70;q=1.80;e=1.70","TwinBlades"),
+new ConfigEntryDefinition("General","Spirit_SpeedMult_Slashers","primary=1.60;q=1.80;e=1.60","Slashers"),
+new ConfigEntryDefinition("General","Spirit_SpeedMult_Whip","primary=1.60;q=1.80;e=1.60","Whip"),
+new ConfigEntryDefinition("General","Spirit_SpeedMult_Claws","primary=1.70;q=1.80;e=1.70","Claws"),
+new ConfigEntryDefinition("General","Spirit_SpeedMult_Pistols","primary=1.60;q=1.80;e=1.60","Pistols"),
+new ConfigEntryDefinition("General","Spirit_SpeedMult_Crossbow","primary=1.60;q=1.80;e=1.60","Crossbow"),
+new ConfigEntryDefinition("General","Spirit_SpeedMult_Longbow","primary=1.60;q=1.80;e=1.60","Longbow")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
