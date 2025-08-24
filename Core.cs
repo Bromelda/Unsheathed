@@ -1,7 +1,6 @@
-
+﻿
 using BepInEx.Logging;
 using BepInEx.Unity.IL2CPP.Utils.Collections;
-
 using Unsheathed.Patches;
 using Unsheathed.Resources;
 using Unsheathed.Services;
@@ -91,6 +90,9 @@ internal static class Core
         buffer.Add(new ReplaceAbilityOnSlotBuff { Slot = 0, NewGroupId = s.Primary, CopyCooldown = s.CopyP, Priority = 0 });
         buffer.Add(new ReplaceAbilityOnSlotBuff { Slot = 1, NewGroupId = s.Q, CopyCooldown = s.CopyQ, Priority = 0 });
         buffer.Add(new ReplaceAbilityOnSlotBuff { Slot = 4, NewGroupId = s.E, CopyCooldown = s.CopyE, Priority = 0 });
+
+        Unsheathed.Utilities.Configuration.TryApplySpiritSpeedMultipliers(weaponKey, s.Primary, s.Q, s.E);
+
         if (Unsheathed.Utilities.Configuration.TryGetSpiritScriptIndices(weaponKey, out var ip, out var iq, out var ie))
         {
             if (ip >= 0) AbilityRunScriptsSystemPatch.AddWeaponsSpell(s.Primary, ip);
