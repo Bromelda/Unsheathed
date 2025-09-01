@@ -22,102 +22,26 @@ internal static class ConfigService
     static readonly Lazy<bool> _spiritArsenal = new(() => GetConfigValue<bool>("SpiritArsenal"));
     public static bool SpiritArsenal => _spiritArsenal.Value;
 
-
-
-
-
-   
-
-
-
-    static readonly Lazy<float> _maxHealth = new(() => GetConfigValue<float>("MaxHealth"));
-    public static float MaxHealth => _maxHealth.Value;
-
-    static readonly Lazy<float> _movementSpeed = new(() => GetConfigValue<float>("MovementSpeed"));
-    public static float MovementSpeed => _movementSpeed.Value;
-
-    static readonly Lazy<float> _primaryAttackSpeed = new(() => GetConfigValue<float>("PrimaryAttackSpeed"));
-    public static float PrimaryAttackSpeed => _primaryAttackSpeed.Value;
-
-    static readonly Lazy<float> _physicalLifeLeech = new(() => GetConfigValue<float>("PhysicalLifeLeech"));
-    public static float PhysicalLifeLeech => _physicalLifeLeech.Value;
-
-    static readonly Lazy<float> _spellLifeLeech = new(() => GetConfigValue<float>("SpellLifeLeech"));
-    public static float SpellLifeLeech => _spellLifeLeech.Value;
-
-    static readonly Lazy<float> _primaryLifeLeech = new(() => GetConfigValue<float>("PrimaryLifeLeech"));
-    public static float PrimaryLifeLeech => _primaryLifeLeech.Value;
-
-    static readonly Lazy<float> _physicalPower = new(() => GetConfigValue<float>("PhysicalPower"));
-    public static float PhysicalPower => _physicalPower.Value;
-
-    static readonly Lazy<float> _spellPower = new(() => GetConfigValue<float>("SpellPower"));
-    public static float SpellPower => _spellPower.Value;
-
-    static readonly Lazy<float> _physicalCritChance = new(() => GetConfigValue<float>("PhysicalCritChance"));
-    public static float PhysicalCritChance => _physicalCritChance.Value;
-
-    static readonly Lazy<float> _physicalCritDamage = new(() => GetConfigValue<float>("PhysicalCritDamage"));
-    public static float PhysicalCritDamage => _physicalCritDamage.Value;
-
-    static readonly Lazy<float> _spellCritChance = new(() => GetConfigValue<float>("SpellCritChance"));
-    public static float SpellCritChance => _spellCritChance.Value;
-
-    static readonly Lazy<float> _spellCritDamage = new(() => GetConfigValue<float>("SpellCritDamage"));
-    public static float SpellCritDamage => _spellCritDamage.Value;
-
-
-    static readonly Lazy<bool> _bloodQualityBonus = new(() => GetConfigValue<bool>("BloodQualityBonus"));
-    public static bool BloodQualityBonus => _bloodQualityBonus.Value;
-
-
-
-
-
-    static readonly Lazy<float> _healingReceived = new(() => GetConfigValue<float>("HealingReceived"));
-    public static float HealingReceived => _healingReceived.Value;
-
-    static readonly Lazy<float> _damageReduction = new(() => GetConfigValue<float>("DamageReduction"));
-    public static float DamageReduction => _damageReduction.Value;
-
-    static readonly Lazy<float> _physicalResistance = new(() => GetConfigValue<float>("PhysicalResistance"));
-    public static float PhysicalResistance => _physicalResistance.Value;
-
-    static readonly Lazy<float> _spellResistance = new(() => GetConfigValue<float>("SpellResistance"));
-    public static float SpellResistance => _spellResistance.Value;
-
-    static readonly Lazy<float> _resourceYield = new(() => GetConfigValue<float>("ResourceYield"));
-    public static float ResourceYield => _resourceYield.Value;
-
-    static readonly Lazy<float> _reducedBloodDrain = new(() => GetConfigValue<float>("ReducedBloodDrain"));
-    public static float ReducedBloodDrain => _reducedBloodDrain.Value;
-
-    static readonly Lazy<float> _spellCooldownRecoveryRate = new(() => GetConfigValue<float>("SpellCooldownRecoveryRate"));
-    public static float SpellCooldownRecoveryRate => _spellCooldownRecoveryRate.Value;
-
-    static readonly Lazy<float> _weaponCooldownRecoveryRate = new(() => GetConfigValue<float>("WeaponCooldownRecoveryRate"));
-    public static float WeaponCooldownRecoveryRate => _weaponCooldownRecoveryRate.Value;
-
-    static readonly Lazy<float> _ultimateCooldownRecoveryRate = new(() => GetConfigValue<float>("UltimateCooldownRecoveryRate"));
-    public static float UltimateCooldownRecoveryRate => _ultimateCooldownRecoveryRate.Value;
-
-    static readonly Lazy<float> _minionDamage = new(() => GetConfigValue<float>("MinionDamage"));
-    public static float MinionDamage => _minionDamage.Value;
-
-    static readonly Lazy<float> _abilityAttackSpeed = new(() => GetConfigValue<float>("AbilityAttackSpeed"));
-    public static float AbilityAttackSpeed => _abilityAttackSpeed.Value;
-
-    static readonly Lazy<float> _corruptionDamageReduction = new(() => GetConfigValue<float>("CorruptionDamageReduction"));
-    public static float CorruptionDamageReduction => _corruptionDamageReduction.Value;
-
-
-
     static readonly Lazy<bool> _weaponsSystem = new(() => GetConfigValue<bool>("WeaponsSystem"));
- 
    public static bool WeaponsSystem => true;
 
 
-   
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -134,12 +58,12 @@ internal static class ConfigService
         {
             return
             [
-            Path.Combine(BepInEx.Paths.ConfigPath, MyPluginInfo.PLUGIN_NAME),                                     // 0
-           
-            Path.Combine(BepInEx.Paths.ConfigPath, MyPluginInfo.PLUGIN_NAME, "PlayerBools")                     // 9
-          
+            Path.Combine(BepInEx.Paths.ConfigPath, MyPluginInfo.PLUGIN_NAME),                                    
+
             ];
         });
+
+
         public static List<string> DirectoryPaths => _directoryPaths.Value;
 
         public static readonly List<string> SectionOrder =
@@ -331,46 +255,63 @@ internal static class ConfigService
 
 
 
-   
-   
-
-
-
-            // ==== SPIRIT (SPEED MULTIPLIERS) ====
-// Multiplies both PrimaryAttackSpeed & AbilityAttackSpeed while the Spirit slot is casting.
-// Format: "P,Q,E"  (0 = disabled)
-new ConfigEntryDefinition("Weapons","Spirit_Speeds_FishingPole","3,8,8","Attack speed multipliers for FishingPole (P,Q,E)."),
-new ConfigEntryDefinition("Weapons","Spirit_Speeds_Daggers","3,8,8","Attack speed multipliers for Daggers (P,Q,E)."),
-new ConfigEntryDefinition("Weapons","Spirit_Speeds_Reaper","3,8,8","Attack speed multipliers for Reaper (P,Q,E)."),
-new ConfigEntryDefinition("Weapons","Spirit_Speeds_Mace","3,8,8","Attack speed multipliers for Mace (P,Q,E)."),
-new ConfigEntryDefinition("Weapons","Spirit_Speeds_Sword","3,8,8","Attack speed multipliers for Sword (P,Q,E)."),
-new ConfigEntryDefinition("Weapons","Spirit_Speeds_GreatSword","3,8,8","Attack speed multipliers for GreatSword (P,Q,E)."),
-new ConfigEntryDefinition("Weapons","Spirit_Speeds_Spear","3,8,8","Attack speed multipliers for Spear (P,Q,E)."),
-new ConfigEntryDefinition("Weapons","Spirit_Speeds_TwinBlades","3,8,8","Attack speed multipliers for TwinBlades (P,Q,E)."),
-new ConfigEntryDefinition("Weapons","Spirit_Speeds_Slashers","3,8,8","Attack speed multipliers for Slashers (P,Q,E)."),
-new ConfigEntryDefinition("Weapons","Spirit_Speeds_Whip","3,8,8","Attack speed multipliers for Whip (P,Q,E)."),
-new ConfigEntryDefinition("Weapons","Spirit_Speeds_Pistols","3,8,8","Attack speed multipliers for Pistols (P,Q,E)."),
-new ConfigEntryDefinition("Weapons","Spirit_Speeds_Crossbow","3,8,8","Attack speed multipliers for Crossbow (P,Q,E)."),
-new ConfigEntryDefinition("Weapons","Spirit_Speeds_Longbow","3,8,8","Attack speed multipliers for Longbow (P,Q,E)."),
-new ConfigEntryDefinition("Weapons","Spirit_Speeds_Claws","3,8,8","Attack speed multipliers for Claws (P,Q,E).")
-
-
-/*// e.g., after Spirit_Scripts_Daggers, CSV of prefab names for your Spirit Daggers items (e.g., Item_Weapon_Daggers_Legendary_T06)"),
-new ConfigEntryDefinition("General", "Spirit_Items_Daggers", "Item_Weapon_Daggers_Legendary_T06", "CSV of prefab names for Spirit Daggers items"),
-new ConfigEntryDefinition("General","Spirit_Items_Sword","Item_Weapon_Sword_Legendary_T06",      "CSV of prefab names for Spirit Sword items"),
-new ConfigEntryDefinition("General","Spirit_Items_GreatSword","Item_Weapon_GreatSword_Legendary_T06", "CSV of prefab names for Spirit GreatSword items"),
-new ConfigEntryDefinition("General","Spirit_Items_TwinBlades","Item_Weapon_TwinBlades_Legendary_T06", "CSV of prefab names for Spirit TwinBlades items"),
-new ConfigEntryDefinition("General","Spirit_Items_Slashers","Item_Weapon_Slashers_Legendary_T06",   "CSV of prefab names for Spirit Slashers items"),
-new ConfigEntryDefinition("General","Spirit_Items_Mace","Item_Weapon_Mace_Legendary_T06",       "CSV of prefab names for Spirit Mace items"),
-new ConfigEntryDefinition("General","Spirit_Items_Reaper","Item_Weapon_Reaper_Legendary_T06",     "CSV of prefab names for Spirit Reaper items"),
-new ConfigEntryDefinition("General","Spirit_Items_Spear","Item_Weapon_Spear_Legendary_T06",      "CSV of prefab names for Spirit Spear items"),
-new ConfigEntryDefinition("General","Spirit_Items_Whip","Item_Weapon_Whip_Legendary_T06",       "CSV of prefab names for Spirit Whip items"),
-new ConfigEntryDefinition("General","Spirit_Items_Pistols","Item_Weapon_Pistols_Legendary_T06",    "CSV of prefab names for Spirit Pistols items"),
-new ConfigEntryDefinition("General","Spirit_Items_Crossbow","Item_Weapon_Crossbow_Legendary_T06",   "CSV of prefab names for Spirit Crossbow items"),
-new ConfigEntryDefinition("General","Spirit_Items_Longbow","Item_Weapon_Longbow_Legendary_T06",    "CSV of prefab names for Spirit Longbow items"),
-new ConfigEntryDefinition("General","Spirit_Items_Claws","Item_Weapon_Claws_Legendary_T06",      "CSV of prefab names for Spirit Claws items"),
-new ConfigEntryDefinition("General","Spirit_Items_FishingPole","Item_Weapon_FishingPole_T01", "CSV of prefab names for Spirit FishingPole items")*/
-
+   // ==== SPIRIT BUFFS — PER-WEAPON ====
+new ConfigEntryDefinition(
+    "General", "Spirit_Buffs_FishingPole",
+    "primary=;q=;e=",
+    "Buffs to apply during casts for FishingPole (primary/q/e). Empty disables."),
+new ConfigEntryDefinition(
+    "General", "Spirit_Buffs_Daggers",
+    "primary=-1515928707;q=-1515928707;e=-1515928707",
+    "Buffs to apply during casts for Daggers (primary/q/e)."),
+new ConfigEntryDefinition(
+    "General", "Spirit_Buffs_Reaper",
+    "primary=AB_GoldGolem_Enrage_Buff;q=;e=",
+    "Buffs to apply during casts for Reaper (primary/q/e)."),
+new ConfigEntryDefinition(
+    "General", "Spirit_Buffs_Mace",
+    "primary=AB_GoldGolem_Enrage_Buff;q=;e=",
+    "Buffs to apply during casts for Mace (primary/q/e)."),
+new ConfigEntryDefinition(
+    "General", "Spirit_Buffs_Sword",
+    "primary=AB_GoldGolem_Enrage_Buff;q=;e=",
+    "Buffs to apply during casts for Sword (primary/q/e)."),
+new ConfigEntryDefinition(
+    "General", "Spirit_Buffs_GreatSword",
+    "primary=AB_GoldGolem_Enrage_Buff;q=AB_GoldGolem_Enrage_Buff;e=AB_GoldGolem_Enrage_Buff",
+    "Buffs to apply during casts for GreatSword (primary/q/e)."),
+new ConfigEntryDefinition(
+    "General", "Spirit_Buffs_Spear",
+    "primary=AB_GoldGolem_Enrage_Buff;q=;e=",
+    "Buffs to apply during casts for Spear (primary/q/e)."),
+new ConfigEntryDefinition(
+    "General", "Spirit_Buffs_TwinBlades",
+    "primary=AB_GoldGolem_Enrage_Buff;q=;e=",
+    "Buffs to apply during casts for TwinBlades (primary/q/e)."),
+new ConfigEntryDefinition(
+    "General", "Spirit_Buffs_Slashers",
+    "primary=AB_GoldGolem_Enrage_Buff;q=;e=",
+    "Buffs to apply during casts for Slashers (primary/q/e)."),
+new ConfigEntryDefinition(
+    "General", "Spirit_Buffs_Whip",
+    "primary=AB_GoldGolem_Enrage_Buff;q=;e=",
+    "Buffs to apply during casts for Whip (primary/q/e)."),
+new ConfigEntryDefinition(
+    "General", "Spirit_Buffs_Pistols",
+    "primary=AB_GoldGolem_Enrage_Buff;q=;e=",
+    "Buffs to apply during casts for Pistols (primary/q/e)."),
+new ConfigEntryDefinition(
+    "General", "Spirit_Buffs_Crossbow",
+    "primary=AB_GoldGolem_Enrage_Buff;q=;e=",
+    "Buffs to apply during casts for Crossbow (primary/q/e)."),
+new ConfigEntryDefinition(
+    "General", "Spirit_Buffs_Longbow",
+    "primary=AB_GoldGolem_Enrage_Buff;q=;e=",
+    "Buffs to apply during casts for Longbow (primary/q/e)."),
+new ConfigEntryDefinition(
+    "General", "Spirit_Buffs_Claws",
+    "primary=AB_GoldGolem_Enrage_Buff;q=;e=",
+    "Buffs to apply during casts for Claws (primary/q/e).")
 
         };
 
@@ -672,9 +613,10 @@ new ConfigEntryDefinition("General","Spirit_Items_FishingPole","Item_Weapon_Fish
                         List<string> sectionLines = OrderedSections[section];
 
                         // Extract keys from the config file
-                        List<string> sectionKeys = [..sectionLines
-                            .Where(line => line.Contains('='))
-                            .Select(line => line.Split('=')[0].Trim())];
+                        List<string> sectionKeys = sectionLines
+                     .Where(line => line.Contains('=') && !line.TrimStart().StartsWith("#"))
+                     .Select(line => line.Split('=')[0].Trim())
+                    .ToList();
 
                         // Create a dictionary of default values directly from ConfigEntries
                         Dictionary<string, object> defaultValuesMap = ConfigEntries
@@ -686,11 +628,30 @@ new ConfigEntryDefinition("General","Spirit_Items_FishingPole","Item_Weapon_Fish
 
                         foreach (var line in sectionLines)
                         {
+                            var trimmed = line.Trim();
+
+                            // if previous line (a key) was skipped as obsolete, also skip its "# Default value: ..." line
+                            if (previousLineSkipped && trimmed.StartsWith(DEFAULT_VALUE_LINE))
+                            {
+                                previousLineSkipped = false;
+                                continue;
+                            }
+
+                            // pass through regular comments (but not the default-value marker we handle above)
+                            if (trimmed.StartsWith("#") && !trimmed.StartsWith(DEFAULT_VALUE_LINE))
+                            {
+                                writer.WriteLine(line);
+                                previousLineSkipped = false;
+                                continue;
+                            }
+
                             if (line.Contains('='))
                             {
                                 string key = line.Split('=')[0].Trim();
 
-                                // Skip obsolete keys that are not in ConfigEntries
+                                // ignore commented key-like lines just in case
+                                if (key.StartsWith("#")) { writer.WriteLine(line); previousLineSkipped = false; continue; }
+
                                 if (!defaultValuesMap.ContainsKey(key))
                                 {
                                     Core.Log.LogWarning($"Skipping obsolete config entry: {key}");
@@ -699,33 +660,34 @@ new ConfigEntryDefinition("General","Spirit_Items_FishingPole","Item_Weapon_Fish
                                 }
                             }
 
-                            // Prevent consecutive blank lines by skipping extra ones
-                            if (string.IsNullOrWhiteSpace(line) && previousLineSkipped)
-                            {
-                                continue;
-                            }
-
                             if (line.Contains(DEFAULT_VALUE_LINE))
                             {
-                                ConfigEntryDefinition entry = ConfigEntries.FirstOrDefault(e => e.Key == sectionKeys[keyIndex] && e.Section == section);
-
-                                if (entry != null)
+                                // guard against out-of-range and missing entry
+                                if (keyIndex < sectionKeys.Count)
                                 {
-                                    writer.WriteLine(DEFAULT_VALUE_LINE + entry.DefaultValue.ToString());
-                                    keyIndex++;
+                                    var entry = ConfigEntries.FirstOrDefault(e => e.Key == sectionKeys[keyIndex] && e.Section == section);
+                                    if (entry != null)
+                                    {
+                                        writer.WriteLine(DEFAULT_VALUE_LINE + entry.DefaultValue.ToString());
+                                        keyIndex++;
+                                    }
+                                    else
+                                    {
+                                        Core.Log.LogWarning($"Config entry for key '{sectionKeys[keyIndex]}' not found in ConfigEntries!");
+                                        writer.WriteLine(line);
+                                    }
                                 }
                                 else
                                 {
-                                    Core.Log.LogWarning($"Config entry for key '{sectionKeys[keyIndex]}' not found in ConfigEntries!");
                                     writer.WriteLine(line);
                                 }
-                            }
-                            else
-                            {
-                                writer.WriteLine(line);
+                                previousLineSkipped = false;
+                                continue;
                             }
 
-                            previousLineSkipped = false; // Reset flag since we wrote a valid line
+                            // existing blank-line squashing can remain as-is
+                            writer.WriteLine(line);
+                            previousLineSkipped = false;
                         }
                     }
                 }

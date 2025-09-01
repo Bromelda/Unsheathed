@@ -1,4 +1,4 @@
-using Unsheathed.Patches;
+﻿using Unsheathed.Patches;
 using Unsheathed.Resources;
 using Unsheathed.Services;
 using ProjectM;

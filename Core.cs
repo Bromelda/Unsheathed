@@ -64,7 +64,10 @@ internal static class Core
 
     static void Spirit_Apply(string weaponKey, PrefabGUID equipBuffGuid)
     {
-        // Only act if config provides values (and if weaponKey is in Spirit_Loadout, when specified)
+        // Only act if config provides values (and if weaponKey is in Spirit_
+        //
+        //
+        // , when specified)
         if (!Unsheathed.Utilities.Configuration.TryGetSpiritGroups(weaponKey, out var s))
             return;
 
@@ -99,19 +102,24 @@ internal static class Core
             if (ie >= 0) AbilityRunScriptsSystemPatch.AddWeaponsSpell(s.E, ie);
 
             Log.LogInfo($"[Spirit] Script indices for {weaponKey} = {ip},{iq},{ie}");
+        }
+        // After scripts indices block in Spirit_Apply(...)
+        if (Unsheathed.Utilities.Configuration.TryGetSpiritBuffs(weaponKey, out var b))
+        {
+            // tie buffs to the exact ability groups we just placed on this equip buff
+            if (b.HasPrimary) AbilityRunScriptsSystemPatch.RegisterWeaponSlotBuff(s.Primary, b.Primary);
+            if (b.HasQ) AbilityRunScriptsSystemPatch.RegisterWeaponSlotBuff(s.Q, b.Q);
+            if (b.HasE) AbilityRunScriptsSystemPatch.RegisterWeaponSlotBuff(s.E, b.E);
 
-            if (Unsheathed.Utilities.Configuration.TryGetSpiritSpeeds(weaponKey, out var sp, out var sq, out var se))
-            {
-                if (sp > 0f) AbilityRunScriptsSystemPatch.AddWeaponSlotSpeed(s.Primary, sp, equipBuffGuid);
-                if (sq > 0f) AbilityRunScriptsSystemPatch.AddWeaponSlotSpeed(s.Q, sq, equipBuffGuid);
-                if (se > 0f) AbilityRunScriptsSystemPatch.AddWeaponSlotSpeed(s.E, se, equipBuffGuid);
-
-                
-            }
+            Log.LogInfo($"[Spirit] Buffs for {weaponKey} " +
+                        $"(P={(b.HasPrimary ? b.Primary.GuidHash : 0)}, " +
+                        $"Q={(b.HasQ ? b.Q.GuidHash : 0)}, " +
+                        $"E={(b.HasE ? b.E.GuidHash : 0)})");
         }
 
-        }
-    
+      
+    }
+  
 
 
 
@@ -954,6 +962,7 @@ internal static class Core
         
 
             Spirit_ApplyAllConfigured();
+          
         }
        
     }

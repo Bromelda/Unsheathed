@@ -70,79 +70,105 @@ internal static class Weapons
 
 
 
-    static void RemoveNPCSpell(Entity character)
+    static void RemoveNPCSpell(EntityManager em, Entity character)
     {
+        // basic guards
+        if (!em.Exists(character) || !em.HasBuffer<BuffBuffer>(character))
+            return;
+
+        // find the EquipBuff_Weapon entity attached to the character
+        var buffs = em.GetBuffer<BuffBuffer>(character);
         Entity buffEntity = Entity.Null;
-        var buffer = character.ReadBuffer<BuffBuffer>();
 
-        for (int i = 0; i < buffer.Length; i++)
+        for (int i = 0; i < buffs.Length; i++)
         {
-            BuffBuffer item = buffer[i];
-            if (item.PrefabGuid.GetPrefabName().StartsWith("EquipBuff_Weapon"))
+            var b = buffs[i];
+            if (b.PrefabGuid.GetPrefabName().StartsWith("EquipBuff_Weapon") && em.Exists(b.Entity))
             {
-                buffEntity = item.Entity;
+                buffEntity = b.Entity;
                 break;
             }
         }
 
-        var replaceBuffer = buffEntity.ReadBuffer<ReplaceAbilityOnSlotBuff>();
-        int toRemove = -1;
+        if (buffEntity == Entity.Null || !em.Exists(buffEntity))
+            return;
 
-        for (int i = 0; i < replaceBuffer.Length; i++)
+        // remove slot 3 entry if present
+        if (em.HasBuffer<ReplaceAbilityOnSlotBuff>(buffEntity))
         {
-            ReplaceAbilityOnSlotBuff item = replaceBuffer[i];
-            if (item.Slot == 3)
+            var replaceBuffer = em.GetBuffer<ReplaceAbilityOnSlotBuff>(buffEntity);
+            for (int i = 0; i < replaceBuffer.Length; i++)
             {
-                toRemove = i;
-                break;
+                if (replaceBuffer[i].Slot == 3)
+                {
+                    replaceBuffer.RemoveAt(i);
+                    break;
+                }
             }
         }
 
-        if (toRemove >= 0 && toRemove < replaceBuffer.Length) replaceBuffer.RemoveAt(toRemove);
-
+        // clear the slot’s ability group on the server either way
         ServerGameManager.ModifyAbilityGroupOnSlot(buffEntity, character, 3, PrefabGUID.Empty);
     }
-    static void HandleNPCSpell(Entity character, PrefabGUID spellPrefabGUID)
+
+    // drop-in replacement: pass in the EntityManager you already have (e.g., __instance.EntityManager)
+    static void HandleNPCSpell(EntityManager em, Entity character, PrefabGUID spellPrefabGUID)
     {
+        // basic guards on the character
+        if (!em.Exists(character) || !em.HasBuffer<BuffBuffer>(character))
+            return;
+
+        // find the EquipBuff_Weapon entity referenced by the character's BuffBuffer
+        var buffs = em.GetBuffer<BuffBuffer>(character);
         Entity buffEntity = Entity.Null;
-        var buffer = character.ReadBuffer<BuffBuffer>();
 
-        for (int i = 0; i < buffer.Length; i++)
+        for (int i = 0; i < buffs.Length; i++)
         {
-            BuffBuffer item = buffer[i];
-            if (item.PrefabGuid.GetPrefabName().StartsWith("EquipBuff_Weapon"))
+            var b = buffs[i];
+            if (b.PrefabGuid.GetPrefabName().StartsWith("EquipBuff_Weapon") && em.Exists(b.Entity))
             {
-                buffEntity = item.Entity;
+                buffEntity = b.Entity;
                 break;
             }
         }
 
-        var replaceBuffer = buffEntity.ReadBuffer<ReplaceAbilityOnSlotBuff>();
-        int toRemove = -1;
+        // if we didn't locate a valid equip-buff entity, nothing to do
+        if (buffEntity == Entity.Null || !em.Exists(buffEntity))
+            return;
 
-        for (int i = 0; i < replaceBuffer.Length; i++)
+        // get (or create) the ReplaceAbilityOnSlotBuff buffer on the equip-buff entity
+        DynamicBuffer<ReplaceAbilityOnSlotBuff> replaceBuffer;
+        if (em.HasBuffer<ReplaceAbilityOnSlotBuff>(buffEntity))
         {
-            ReplaceAbilityOnSlotBuff item = replaceBuffer[i];
-            if (item.Slot == 3)
-            {
-                toRemove = i;
-                break;
-            }
+            replaceBuffer = em.GetBuffer<ReplaceAbilityOnSlotBuff>(buffEntity);
+        }
+        else
+        {
+            // if your environment disallows AddBuffer on this entity, remove this line
+            // and rely on ModifyAbilityGroupOnSlot below.
+            replaceBuffer = em.AddBuffer<ReplaceAbilityOnSlotBuff>(buffEntity);
         }
 
-        if (toRemove >= 0 && toRemove < replaceBuffer.Length) replaceBuffer.RemoveAt(toRemove);
+        // remove any existing entry for slot 3 (do reverse loop to safely remove multiples)
+        for (int i = replaceBuffer.Length - 1; i >= 0; i--)
+        {
+            if (replaceBuffer[i].Slot == 3)
+                replaceBuffer.RemoveAt(i);
+        }
 
-        ReplaceAbilityOnSlotBuff buff = new()
+        // add the new mapping
+        replaceBuffer.Add(new ReplaceAbilityOnSlotBuff
         {
             Slot = 3,
             NewGroupId = spellPrefabGUID,
             CopyCooldown = true,
             Priority = 0,
-        };
+        });
 
-        replaceBuffer.Add(buff);
+        // ensure the authoritative server-side mapping is applied too
         ServerGameManager.ModifyAbilityGroupOnSlot(buffEntity, character, 3, spellPrefabGUID);
     }
+
 
     static string GetWeaponsSpellName(PrefabGUID prefabGuid)
     {
