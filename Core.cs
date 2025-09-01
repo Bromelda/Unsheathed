@@ -91,7 +91,6 @@ internal static class Core
         buffer.Add(new ReplaceAbilityOnSlotBuff { Slot = 1, NewGroupId = s.Q, CopyCooldown = s.CopyQ, Priority = 0 });
         buffer.Add(new ReplaceAbilityOnSlotBuff { Slot = 4, NewGroupId = s.E, CopyCooldown = s.CopyE, Priority = 0 });
 
-        Unsheathed.Utilities.Configuration.TryApplySpiritSpeedMultipliers(weaponKey, s.Primary, s.Q, s.E);
 
         if (Unsheathed.Utilities.Configuration.TryGetSpiritScriptIndices(weaponKey, out var ip, out var iq, out var ie))
         {
@@ -100,30 +99,25 @@ internal static class Core
             if (ie >= 0) AbilityRunScriptsSystemPatch.AddWeaponsSpell(s.E, ie);
 
             Log.LogInfo($"[Spirit] Script indices for {weaponKey} = {ip},{iq},{ie}");
+
+            if (Unsheathed.Utilities.Configuration.TryGetSpiritSpeeds(weaponKey, out var sp, out var sq, out var se))
+            {
+                if (sp > 0f) AbilityRunScriptsSystemPatch.AddWeaponSlotSpeed(s.Primary, sp, equipBuffGuid);
+                if (sq > 0f) AbilityRunScriptsSystemPatch.AddWeaponSlotSpeed(s.Q, sq, equipBuffGuid);
+                if (se > 0f) AbilityRunScriptsSystemPatch.AddWeaponSlotSpeed(s.E, se, equipBuffGuid);
+
+                
+            }
         }
 
-        Log.LogInfo($"[Spirit] Override applied for {weaponKey} " +
-                    $"(P={s.Primary.GuidHash}, Q={s.Q.GuidHash}, E={s.E.GuidHash}; " +
-                    $"copy={s.CopyP},{s.CopyQ},{s.CopyE})");
-    }
-    // === /Spirit config overrides ===
+        }
+    
 
 
 
 
 
-    public static void ApplyEquipBuff(Entity entity, int groupGuid, int slot = 1)
-    {
-        var buffer = entity.ReadBuffer<ReplaceAbilityOnSlotBuff>();
-        ReplaceAbilityOnSlotBuff buff = new()
-        {
-            Slot = slot,
-            NewGroupId = new PrefabGUID(groupGuid),
-            CopyCooldown = true,
-            Priority = 0,
-        };
-        buffer.Add(buff);
-    }
+   
     static MonoBehaviour _monoBehaviour;
 
     static readonly List<PrefabGUID> _returnBuffs =

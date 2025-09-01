@@ -81,17 +81,13 @@ internal static class Buffs
     public static readonly PrefabGUID BonusPlayerStatsBuff = BonusStatsBuff;
 
 
-    static readonly Dictionary<PrefabGUID, int> _buffMaxStacks = [];
+   
     public static bool TryApplyBuff(this Entity entity, PrefabGUID prefabGuid)
     {
         bool hasBuff = entity.HasBuff(prefabGuid);
 
-        if (hasBuff && ShouldApplyStack(entity, prefabGuid, out Entity buffEntity, out byte stacks))
-        {
-            // ServerGameManager.CreateStacksIncreaseEvent(buffEntity, stacks, ++stacks);
-            ServerGameManager.InstantiateBuffEntityImmediate(entity, entity, prefabGuid, null, stacks);
-        }
-        else if (!hasBuff)
+       
+         if (!hasBuff)
         {
             ApplyBuffDebugEvent applyBuffDebugEvent = new()
             {
@@ -113,20 +109,7 @@ internal static class Buffs
 
         return false;
     }
-    static bool ShouldApplyStack(Entity entity, PrefabGUID prefabGuid, out Entity buffEntity, out byte stacks)
-    {
-        buffEntity = Entity.Null;
-        stacks = 0;
-
-        if (_buffMaxStacks.TryGetValue(prefabGuid, out int maxStacks)
-            && entity.TryGetBuffStacks(prefabGuid, out buffEntity, out int buffStacks))
-        {
-            stacks = (byte)buffStacks;
-            return stacks < maxStacks;
-        }
-
-        return false;
-    }
+   
     public static bool TryGetBuff(this Entity entity, PrefabGUID buffPrefabGUID, out Entity buffEntity)
     {
         if (ServerGameManager.TryGetBuff(entity, buffPrefabGUID.ToIdentifier(), out buffEntity))
@@ -306,32 +289,7 @@ internal static class Buffs
 
         return false;
     }
-    public static void GetStackableBuffs()
-    {
-        var prefabGuidsToEntities = PrefabCollectionSystem._PrefabGuidToEntityMap;
-
-        var prefabGuids = prefabGuidsToEntities.GetKeyArray(Allocator.Temp);
-        var entities = prefabGuidsToEntities.GetValueArray(Allocator.Temp);
-
-        try
-        {
-            for (int i = 0; i < prefabGuids.Length; i++)
-            {
-                PrefabGUID prefabGuid = prefabGuids[i];
-                Entity entity = entities[i];
-
-                if (entity.IsStackableBuff(out int maxStacks))
-                {
-                    _buffMaxStacks[prefabGuid] = maxStacks;
-                }
-            }
-        }
-        finally
-        {
-            prefabGuids.Dispose();
-            entities.Dispose();
-        }
-    }
+   
 
 
 

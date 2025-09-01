@@ -1,17 +1,27 @@
-﻿using Unsheathed.Resources;
-using Unsheathed.Services;
-using Unsheathed.Utilities;
-using HarmonyLib;
+﻿using HarmonyLib;
 using ProjectM;
+using ProjectM.Behaviours;
 using ProjectM.Network;
 using ProjectM.Scripting;
+using ProjectM.Shared;
 using Stunlock.Core;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using Unity.Collections;
 using Unity.Entities;
-using System.Collections.Generic;
+using Unity.Mathematics;
+using Unsheathed.Resources;
+using Unsheathed.Services;
+using Unsheathed.Utilities;
+
+
+
 
 
 namespace Unsheathed.Patches;
+
+
 
 [HarmonyPatch]
 internal static class AbilityRunScriptsSystemPatch
@@ -28,6 +38,9 @@ internal static class AbilityRunScriptsSystemPatch
 
 
 
+   
+    // Track what we set during a cast so we can restore precisely
+    static readonly Dictionary<Entity, float> _prevSpeedDuringCast = new();
 
 
 
@@ -35,75 +48,52 @@ internal static class AbilityRunScriptsSystemPatch
 
 
 
-    // Which stat to touch for a given group (Primary uses PrimaryAttackSpeed; Q/E use AbilityAttackSpeed)
-    public enum SlotKind : byte { Primary, Q, E }
 
-    // Map SpiritArsenal ability group -> slot
-    static readonly Dictionary<PrefabGUID, SlotKind> _groupSlot = new();
-
-    // Per-group speed multiplier (e.g., 1.0 = no change, 1.8 = 80% faster)
-    static readonly Dictionary<PrefabGUID, float> _groupMultiplier = new();
-
-    // Backup of original values per character so we can restore exactly
-    struct AbilityBarBackup { public float Ability; public float Primary; }
-    static readonly Dictionary<Entity, AbilityBarBackup> _abilityBarBackup = new();
-
-    // API you call from Core/Spirit setup:
-    public static void RegisterGroupSlot(PrefabGUID group, SlotKind slot) => _groupSlot[group] = slot;
-    public static void SetGroupSpeedMultiplier(PrefabGUID group, float multiplier)
+    static readonly Dictionary<PrefabGUID, (float Mult, PrefabGUID RequiredEquipBuff)> _spiritSpeedByGroup = new();
+    public static void AddWeaponSlotSpeed(PrefabGUID group, float multiplier, PrefabGUID requiredEquipBuff)
     {
-        // clamp to sane bounds to avoid silly values
-        if (multiplier < 0.5f) multiplier = 0.5f;
-        else if (multiplier > 3.0f) multiplier = 3.0f;
-        _groupMultiplier[group] = multiplier;
+        if (multiplier > 0f) _spiritSpeedByGroup[group] = (multiplier, requiredEquipBuff);
     }
 
-    static void ApplyAbilityBarOverrideForSlot(EntityManager em, Entity character, SlotKind slot, float multiplier)
-    {
-        if (character == Entity.Null || !em.Exists(character)) return;
-        if (!em.HasComponent<AbilityBar_Shared>(character)) return;
 
-        var ab = em.GetComponentData<AbilityBar_Shared>(character);
 
-        // Save originals once; presence in the dict means "override active"
-        if (!_abilityBarBackup.ContainsKey(character))
-        {
-            _abilityBarBackup[character] = new AbilityBarBackup
-            {
-                Ability = ab.AbilityAttackSpeed._Value,
-                Primary = ab.PrimaryAttackSpeed._Value
-            };
-        }
 
-        var orig = _abilityBarBackup[character];
 
-        // Touch only the relevant stat for the slot being cast
-        switch (slot)
-        {
-            case SlotKind.Primary:
-                ab.PrimaryAttackSpeed._Value = orig.Primary * multiplier;
-                break;
-            case SlotKind.Q:
-            case SlotKind.E:
-                ab.AbilityAttackSpeed._Value = orig.Ability * multiplier;
-                break;
-        }
 
-        em.SetComponentData(character, ab);
-    }
+   
 
-    static void RestoreAbilityBar(EntityManager em, Entity character)
-    {
-        if (character == Entity.Null || !em.Exists(character)) return;
-        if (_abilityBarBackup.TryGetValue(character, out var orig) && em.HasComponent<AbilityBar_Shared>(character))
-        {
-            var ab = em.GetComponentData<AbilityBar_Shared>(character);
-            ab.AbilityAttackSpeed._Value = orig.Ability;
-            ab.PrimaryAttackSpeed._Value = orig.Primary;
-            em.SetComponentData(character, ab);
-        }
-        _abilityBarBackup.Remove(character);
-    }
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -136,31 +126,36 @@ internal static class AbilityRunScriptsSystemPatch
     [HarmonyPrefix]
     static void OnUpdatePrefix(AbilityRunScriptsSystem __instance)
     {
-        // Use your repo’s init guard (you can swap to GameSystems.Initialized if you actually have that symbol)
         if (!Core._initialized) return;
+        if (!ConfigService.SpiritArsenal || !ConfigService.WeaponsSystem) return;
 
-        var castStartedEvents = __instance._OnCastStartedQuery.ToEntityArray(Allocator.Temp);       // First event
-        var preCastFinishedEvents = __instance._OnPreCastFinishedQuery.ToEntityArray(Allocator.Temp);   // Second event
-        var postCastEndedEvents = __instance._OnPostCastEndedQuery.ToEntityArray(Allocator.Temp);     // Third event
+        var castStartedEvents = __instance._OnCastStartedQuery.ToEntityArray(Allocator.Temp);
+        var preCastFinishedEvents = __instance._OnPreCastFinishedQuery.ToEntityArray(Allocator.Temp);
+        var postCastEndedEvents = __instance._OnPostCastEndedQuery.ToEntityArray(Allocator.Temp);
+        var castEndedEvents = __instance._OnCastEndedQuery.ToEntityArray(Allocator.Temp);
         var interruptedEvents = __instance._OnInterruptedQuery.ToEntityArray(Allocator.Temp);
 
         try
         {
             var em = __instance.EntityManager;
+            Unsheathed.Services.SpiritEquipCapWatcher.Tick(em);
 
-            HandleCastStarted(em, castStartedEvents);
-            HandlePreCastFinished(em, preCastFinishedEvents);
-            HandlePostCastEnded(em, postCastEndedEvents);   // keeps your cooldown behavior
-            HandleInterrupted(em, interruptedEvents);
+            HandleCastStarted(em, castStartedEvents);          // AbilityCastStartedEvent  :contentReference[oaicite:4]{index=4}
+            HandlePreCastFinished(em, preCastFinishedEvents);  // AbilityPreCastFinishedEvent  :contentReference[oaicite:5]{index=5}
+            HandlePostCastEnded(em, postCastEndedEvents);      // AbilityPostCastEndedEvent  :contentReference[oaicite:6]{index=6}
+            HandleCastEnded(em, castEndedEvents);              // AbilityCastEndedEvent  :contentReference[oaicite:7]{index=7}
+            HandleInterrupted(em, interruptedEvents);          // AbilityInterruptedEvent  :contentReference[oaicite:8]{index=8}
         }
         finally
         {
             castStartedEvents.Dispose();
             preCastFinishedEvents.Dispose();
             postCastEndedEvents.Dispose();
+            castEndedEvents.Dispose();
             interruptedEvents.Dispose();
         }
     }
+
 
     // --- Handlers (add/extend as you implement your per-ability/per-weapon logic) ---
 
@@ -172,57 +167,29 @@ internal static class AbilityRunScriptsSystemPatch
             if (!em.Exists(e) || !em.HasComponent<AbilityCastStartedEvent>(e)) continue;
 
             var ev = em.GetComponentData<AbilityCastStartedEvent>(e);
-            if (ev.Character == Entity.Null || ev.AbilityGroup == Entity.Null) continue;
-            if (!em.Exists(ev.Character) || !em.Exists(ev.AbilityGroup)) continue;
-            if (!ev.Character.IsPlayer()) continue;
+            if (ev.AbilityGroup == Entity.Null || ev.Character == Entity.Null) continue;
+            if (!em.Exists(ev.Character) || !ev.Character.IsPlayer()) continue;
 
-            var group = ev.AbilityGroup.GetPrefabGuid();
+            var groupGuid = ev.AbilityGroup.GetPrefabGuid();
+            if (!_spiritSpeedByGroup.TryGetValue(groupGuid, out var entry)) continue;
 
-            // Only affect your custom SpiritArsenal abilities you registered:
-            if (_groupSlot.TryGetValue(group, out var slot) && _groupMultiplier.TryGetValue(group, out var mult))
-
+            // Cast started: apply speed + lift caps (via service)
+            if (entry.RequiredEquipBuff.GuidHash == 0 || ev.Character.HasBuff(entry.RequiredEquipBuff))
             {
-                Core.Log.LogInfo($"[SpiritSpeed] Apply {mult:0.00} to {slot} for group {group.GuidHash} on {ev.Character.Index}");
-
-
-                // Guard to avoid double-applying if multiple cast-start events fire
-                if (!_abilityBarBackup.ContainsKey(ev.Character))
-                    ApplyAbilityBarOverrideForSlot(em, ev.Character, slot, mult);
+                ApplyCastSpeed(em, ev.Character, entry.Mult);
+                AttackSpeedCapService.TryLiftCaps(em, ev.Character);
             }
         }
     }
 
-
     static void HandlePreCastFinished(EntityManager em, NativeArray<Entity> events)
     {
-        for (int i = 0; i < events.Length; i++)
-        {
-            var e = events[i];
-            if (!em.Exists(e) || !em.HasComponent<AbilityPreCastFinishedEvent>(e)) continue;
-            var ev = em.GetComponentData<AbilityPreCastFinishedEvent>(e);
-            if (ev.Character == Entity.Null || !em.Exists(ev.Character)) continue;
-
-            RestoreAbilityBar(em, ev.Character);
-        }
+        // (intentionally empty for now)
     }
 
-    static void HandleInterrupted(EntityManager em, NativeArray<Entity> events)
-    {
-        for (int i = 0; i < events.Length; i++)
-        {
-            var e = events[i];
-            if (!em.Exists(e) || !em.HasComponent<AbilityInterruptedEvent>(e)) continue;
-            var ev = em.GetComponentData<AbilityInterruptedEvent>(e);
-            if (ev.Character == Entity.Null || !em.Exists(ev.Character)) continue;
-
-            RestoreAbilityBar(em, ev.Character);
-        }
-    }
-
-
+    // In HandlePostCastEnded(.), remove the temporary speed and restore caps too (idempotent).
     static void HandlePostCastEnded(EntityManager em, NativeArray<Entity> events)
     {
-        // Preserves your original Spirit cooldown tweak per ability group
         for (int i = 0; i < events.Length; i++)
         {
             var e = events[i];
@@ -230,33 +197,146 @@ internal static class AbilityRunScriptsSystemPatch
 
             var ev = em.GetComponentData<AbilityPostCastEndedEvent>(e);
             if (ev.AbilityGroup == Entity.Null || ev.Character == Entity.Null) continue;
-            if (!em.Exists(ev.AbilityGroup) || !em.Exists(ev.Character)) continue;
-            if (em.HasComponent<VBloodAbilityData>(ev.AbilityGroup)) continue;
-            if (!ev.Character.IsPlayer()) continue;
+            if (!em.Exists(ev.Character) || !ev.Character.IsPlayer()) continue;
 
             var groupGuid = ev.AbilityGroup.GetPrefabGuid();
 
-            // Assumes these already exist in your class:
-            //   public static IReadOnlyDictionary<PrefabGUID,int> WeaponsSpells => _weaponsSpells;
-            //   static readonly Dictionary<PrefabGUID,int> _weaponsSpells = ...;
-            //   const float Weapon_COOLDOWN_FACTOR = 1f; (or your actual value)
-            if (WeaponsSpells != null && WeaponsSpells.ContainsKey(groupGuid))
+            // If this group was one we boosted, clean up speed + caps here as well.
+            if (_spiritSpeedByGroup.ContainsKey(groupGuid))
             {
-                float cooldown = WeaponsSpells[groupGuid] == 0
-                    ? Weapon_COOLDOWN_FACTOR
-                    : (WeaponsSpells[groupGuid] + 1) * Weapon_COOLDOWN_FACTOR;
+                RestoreCastSpeed(em, ev.Character);
+                AttackSpeedCapService.RestoreCaps(em, ev.Character);
+            }
 
+            // Apply your cooldown tweak (existing logic)
+            if (_weaponsSpells.TryGetValue(groupGuid, out var idx))
+            {
+                float cooldown = idx == 0 ? Weapon_COOLDOWN_FACTOR : (idx + 1) * Weapon_COOLDOWN_FACTOR;
                 ServerGameManager.SetAbilityGroupCooldown(ev.Character, groupGuid, cooldown);
             }
         }
     }
 
+    static void HandleCastEnded(EntityManager em, NativeArray<Entity> events)
+    {
+        for (int i = 0; i < events.Length; i++)
+        {
+            var e = events[i];
+            if (!em.Exists(e) || !em.HasComponent<AbilityCastEndedEvent>(e)) continue;
+
+            var ev = em.GetComponentData<AbilityCastEndedEvent>(e);
+            if (ev.AbilityGroup == Entity.Null || ev.Character == Entity.Null) continue;
+            if (!em.Exists(ev.Character) || !ev.Character.IsPlayer()) continue;
+
+            var groupGuid = ev.AbilityGroup.GetPrefabGuid();
+            if (!_spiritSpeedByGroup.ContainsKey(groupGuid)) continue;
+
+            // Cast ended / interrupted / post-cast: restore speed + caps (via service)
+            RestoreCastSpeed(em, ev.Character);
+            AttackSpeedCapService.RestoreCaps(em, ev.Character);
+        }
+    }
+
+    // Also clear on interrupt:
+    static void HandleInterrupted(EntityManager em, NativeArray<Entity> events)
+    {
+        for (int i = 0; i < events.Length; i++)
+        {
+            var e = events[i];
+            if (!em.Exists(e) || !em.HasComponent<AbilityInterruptedEvent>(e)) continue;
+
+            var ev = em.GetComponentData<AbilityInterruptedEvent>(e);
+            if (ev.AbilityGroup == Entity.Null || ev.Character == Entity.Null) continue;
+            if (!em.Exists(ev.Character) || !ev.Character.IsPlayer()) continue;
+
+            var groupGuid = ev.AbilityGroup.GetPrefabGuid();
+            if (!_spiritSpeedByGroup.ContainsKey(groupGuid)) continue;
+
+            // Cast ended / interrupted / post-cast: restore speed + caps (via service)
+            RestoreCastSpeed(em, ev.Character);
+            AttackSpeedCapService.RestoreCaps(em, ev.Character);
+        }
+    }
+
+    // -- unchanged helper API below --
 
     public static void AddWeaponsSpell(PrefabGUID prefabGuid, int spellIndex)
     {
         _weaponsSpells.TryAdd(prefabGuid, spellIndex);
     }
-   
+
+    static ModifyUnitStatBuff_DOTS MakeSpeed(UnitStatType stat, float mult) => new ModifyUnitStatBuff_DOTS
+    {
+        AttributeCapType = AttributeCapType.Uncapped,
+        StatType = stat,
+        Value = mult,
+        ModificationType = ModificationType.Multiply,
+        Modifier = 1,
+        Id = ModificationId.NewId(0)
+    };
+
+    // We store & restore what was there; if nothing prior, we just remove our buff at the end.
+    static void ApplyCastSpeed(EntityManager em, Entity character, float mult)
+    {
+        // Capture prior (if we already applied this in a nested way, do nothing)
+        if (!_prevSpeedDuringCast.ContainsKey(character))
+        {
+            float prior = 1f;
+            if (character.TryGetBuff(Buffs.BonusPlayerStatsBuff, out var buffEntity) &&
+                em.HasBuffer<ModifyUnitStatBuff_DOTS>(buffEntity))
+            {
+                var buf = em.GetBuffer<ModifyUnitStatBuff_DOTS>(buffEntity);
+                for (int k = 0; k < buf.Length; k++)
+                {
+                    ref var b = ref buf.ElementAt(k);
+                    if (b.StatType == UnitStatType.AbilityAttackSpeed && b.ModificationType == ModificationType.Multiply)
+                    {
+                        prior = b.Value; break;
+                    }
+                }
+            }
+            _prevSpeedDuringCast[character] = prior;
+        }
+
+        // Ensure buff exists
+        if (character.TryApplyAndGetBuff(Buffs.BonusPlayerStatsBuff, out var bonusBuff))
+        {
+            var mods = em.HasBuffer<ModifyUnitStatBuff_DOTS>(bonusBuff)
+                ? em.GetBuffer<ModifyUnitStatBuff_DOTS>(bonusBuff)
+                : em.AddBuffer<ModifyUnitStatBuff_DOTS>(bonusBuff);
+
+            // Single-source container: clear then write our two speed entries
+            mods.Clear();
+            mods.Add(MakeSpeed(UnitStatType.PrimaryAttackSpeed, mult));
+            mods.Add(MakeSpeed(UnitStatType.AbilityAttackSpeed, mult));
+        }
+    }
+
+    static void RestoreCastSpeed(EntityManager em, Entity character)
+    {
+        if (!character.TryGetBuff(Buffs.BonusPlayerStatsBuff, out var bonusBuff)) { _prevSpeedDuringCast.Remove(character); return; }
+
+        var hadPrev = _prevSpeedDuringCast.Remove(character, out var prior);
+        var mods = em.HasBuffer<ModifyUnitStatBuff_DOTS>(bonusBuff)
+            ? em.GetBuffer<ModifyUnitStatBuff_DOTS>(bonusBuff)
+            : em.AddBuffer<ModifyUnitStatBuff_DOTS>(bonusBuff);
+
+        mods.Clear();
+
+        if (hadPrev && prior > 0f && Math.Abs(prior - 1f) > 0.0001f)
+        {
+            // restore prior (if it looked like a real multiplier)
+            mods.Add(MakeSpeed(UnitStatType.PrimaryAttackSpeed, prior));
+            mods.Add(MakeSpeed(UnitStatType.AbilityAttackSpeed, prior));
+        }
+        else
+        {
+            // nothing to restore; drop the helper buff
+            bonusBuff.Destroy();
+        }
+    }
+
+
 
 
 }

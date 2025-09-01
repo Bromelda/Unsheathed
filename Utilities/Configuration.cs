@@ -10,6 +10,7 @@ using ProjectM;
 using Stunlock.Core;
 using Unsheathed.Resources;   // PrefabGUIDs names
 using Unsheathed.Services;    // ConfigService
+using System.Reflection;
 
 namespace Unsheathed.Utilities
 {
@@ -45,50 +46,7 @@ namespace Unsheathed.Utilities
 
         // -------- Prefab name/int -> PrefabGUID map --------
 
-        static readonly Lazy<Dictionary<string, PrefabGUID>> _prefabMap = new Lazy<Dictionary<string, PrefabGUID>>(() =>
-        {
-            var dict = new Dictionary<string, PrefabGUID>(StringComparer.OrdinalIgnoreCase);
-
-            // Reflect public static PrefabGUID fields on PrefabGUIDs
-            try
-            {
-                foreach (var f in typeof(PrefabGUIDs).GetFields(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static))
-                {
-                    if (f.FieldType == typeof(PrefabGUID))
-                    {
-                        var val = (PrefabGUID)f.GetValue(null);
-                        dict[f.Name] = val;
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                Core.Log.LogWarning($"[Spirit] PrefabGUIDs reflection failed: {ex.Message}");
-            }
-
-            // Optional: merge PrefabIndex.json from the plugin’s config folder
-            try
-            {
-                var path = Path.Combine(BepInEx.Paths.ConfigPath, MyPluginInfo.PLUGIN_NAME, "PrefabIndex.json");
-                if (File.Exists(path))
-                {
-                    var json = File.ReadAllText(path);
-                    var tmp = JsonSerializer.Deserialize<Dictionary<string, int>>(json);
-                    if (tmp != null)
-                    {
-                        foreach (var kv in tmp)
-                            if (!dict.ContainsKey(kv.Key))
-                                dict[kv.Key] = new PrefabGUID(kv.Value);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                Core.Log.LogWarning($"[Spirit] PrefabIndex.json load failed (optional): {ex.Message}");
-            }
-
-            return dict;
-        });
+       
 
         static bool TryParsePrefab(string token, out PrefabGUID guid)
         {
@@ -108,6 +66,43 @@ namespace Unsheathed.Utilities
             Core.Log.LogWarning($"[Spirit] Unknown prefab token '{token}'.");
             return false;
         }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+
+
+
+
+
+
+
+
+
+
+
+
 
         // -------- Spirit group config (per-weapon Primary/Q/E) --------
 
@@ -144,9 +139,9 @@ namespace Unsheathed.Utilities
                 }
             }
 
-            if (!TryParsePrefab(p, out slots.Primary)) return false;
-            if (!TryParsePrefab(q, out slots.Q)) return false;
-            if (!TryParsePrefab(e, out slots.E)) return false;
+             if (!TryResolvePrefab(p, out slots.Primary)) return false;
+             if (!TryResolvePrefab(q, out slots.Q)) return false;
+             if (!TryResolvePrefab(e, out slots.E)) return false;
 
             slots.CopyP = slots.CopyQ = slots.CopyE = true; // defaults
             if (!string.IsNullOrWhiteSpace(copy))
@@ -211,90 +206,152 @@ namespace Unsheathed.Utilities
             return ok;
         }
 
-        // -------- Per-slot animation speed multipliers (Primary/Q/E) --------
 
-        public struct SpeedMults { public float Primary, Q, E; }
 
-        static float ParseMult(string token)
-        {
-            if (string.IsNullOrWhiteSpace(token)) return 0f;
-            if (!float.TryParse(token.Trim(), NumberStyles.Float, CultureInfo.InvariantCulture, out var f)) return 0f;
-            if (f < 0.5f) f = 0.5f;
-            if (f > 3.0f) f = 3.0f;
-            return f;
-        }
 
-        static SpeedMults ParseSpeedMults(string s)
-        {
-            var r = new SpeedMults();
-            if (string.IsNullOrWhiteSpace(s)) return r;
 
-            foreach (var part in s.Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        // -------- Prefab name/int -> PrefabGUID map + resolver --------
+        static readonly Lazy<Dictionary<string, PrefabGUID>> _prefabMap
+            = new(() =>
             {
-                var kv = part.Split('=', 2, StringSplitOptions.TrimEntries);
-                if (kv.Length != 2) continue;
+                var dict = new Dictionary<string, PrefabGUID>(StringComparer.OrdinalIgnoreCase);
 
-                var val = ParseMult(kv[1]);
-                switch (kv[0].ToLowerInvariant())
+                // 1) Reflect your generated constants in Unsheathed.Resources.PrefabGUIDs
+                try
                 {
-                    case "primary": r.Primary = val; break;
-                    case "q": r.Q       = val; break;
-                    case "e": r.E       = val; break;
+                    var flags = BindingFlags.Public | BindingFlags.Static;
+                    foreach (var f in typeof(PrefabGUIDs).GetFields(flags))
+                    {
+                        if (f.FieldType == typeof(PrefabGUID))
+                        {
+                            var name = f.Name;
+                            var guid = (PrefabGUID)f.GetValue(null);
+                            if (!string.IsNullOrWhiteSpace(name))
+                                dict[name] = guid;
+                        }
+                    }
                 }
-            }
-            return r;
-        }
+                catch { /* keep going; reflection is best-effort */ }
 
-        static bool TryGetValue(string key, out string value)
+                // 2) Optionally merge PrefabIndex.json if present
+                try
+                {
+                    var candidates = new[]
+            {
+            Path.Combine(Paths.ConfigPath, "PrefabIndex.json"),
+            Path.Combine(Paths.PluginPath, "PrefabIndex.json"),
+                };
+                    var path = candidates.FirstOrDefault(File.Exists);
+                    if (path != null)
+                    {
+                        var json = File.ReadAllText(path);
+                        // The JSON is a simple string->int map
+                        var map = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, int>>(json);
+                        if (map != null)
+                        {
+                            foreach (var kv in map)
+                            {
+                                var k = kv.Key?.Trim();
+                                if (string.IsNullOrEmpty(k)) continue;
+                                if (k.StartsWith("!")) continue; // treat "! ..." entries as comments
+                                dict[k] = new PrefabGUID(kv.Value);
+                            }
+                        }
+                    }
+                }
+                catch { /* ignore, stay robust */ }
+
+                return dict;
+            });
+
+        public static bool TryResolvePrefab(string nameOrId, out PrefabGUID guid)
         {
-            value = null;
-            if (!ConfigService.ConfigInitialization.FinalConfigValues.TryGetValue(key, out var obj))
-                return false;
-            value = Convert.ToString(obj) ?? "";
-            return true;
+            guid = default;
+            if (string.IsNullOrWhiteSpace(nameOrId)) return false;
+
+            var s = nameOrId.Trim();
+
+            // A) direct name lookup (case-insensitive)
+            if (_prefabMap.Value.TryGetValue(s, out guid))
+                return true;
+
+            // B) allow "Namespace.Class.Field" by taking last segment
+            var lastDot = s.LastIndexOf('.');
+            if (lastDot >= 0)
+            {
+                var tail = s[(lastDot + 1)..];
+                if (_prefabMap.Value.TryGetValue(tail, out guid))
+                    return true;
+            }
+
+            // C) numeric id (decimal or 0xHEX), supports negative values
+            //    examples: "123456789", "-123", "0x7F3A112B"
+            if (TryParseIntFlexible(s, out var id))
+            {
+                guid = new PrefabGUID(id);
+                return true;
+            }
+
+            return false;
         }
 
-        static SpeedMults GetMergedSpeedMults(string weaponKey)
+        static bool TryParseIntFlexible(string s, out int value)
         {
-            TryGetValue("Spirit_SpeedMult_Default", out var defStr);
-            var def = ParseSpeedMults(defStr);
+            // hex?
+            if (s.StartsWith("0x", StringComparison.OrdinalIgnoreCase) && int.TryParse(s[2..],
+                System.Globalization.NumberStyles.HexNumber, System.Globalization.CultureInfo.InvariantCulture, out value))
+                return true;
 
-            TryGetValue($"Spirit_SpeedMult_{weaponKey}", out var rowStr);
-            var row = ParseSpeedMults(rowStr);
-
-            float Eff(float rowV, float defV) => rowV > 0f ? rowV : (defV > 0f ? defV : 1.0f);
-
-            return new SpeedMults
-            {
-                Primary = Eff(row.Primary, def.Primary),
-                Q       = Eff(row.Q, def.Q),
-                E       = Eff(row.E, def.E),
-            };
+            // decimal (allow leading + or -)
+            return int.TryParse(s, System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture, out value);
         }
 
-        // Call this after you assign Spirit slots (Primary/Q/E) for a weapon
-        public static void TryApplySpiritSpeedMultipliers(string weaponKey, PrefabGUID primaryGroup, PrefabGUID qGroup, PrefabGUID eGroup)
+        public static bool TryGetSpiritSpeeds(string weaponKey, out float p, out float q, out float e)
         {
-            var m = GetMergedSpeedMults(weaponKey);
+            p = q = e = 0f;
+            var key = $"Spirit_Speeds_{weaponKey}";
+            if (!Services.ConfigService.ConfigInitialization.FinalConfigValues.TryGetValue(key, out var raw)) return false;
 
-            if (primaryGroup.GuidHash != 0)
-            {
-                Patches.AbilityRunScriptsSystemPatch.RegisterGroupSlot(primaryGroup, Patches.AbilityRunScriptsSystemPatch.SlotKind.Primary);
-                Patches.AbilityRunScriptsSystemPatch.SetGroupSpeedMultiplier(primaryGroup, m.Primary);
-            }
-            if (qGroup.GuidHash != 0)
-            {
-                Patches.AbilityRunScriptsSystemPatch.RegisterGroupSlot(qGroup, Patches.AbilityRunScriptsSystemPatch.SlotKind.Q);
-                Patches.AbilityRunScriptsSystemPatch.SetGroupSpeedMultiplier(qGroup, m.Q);
-            }
-            if (eGroup.GuidHash != 0)
-            {
-                Patches.AbilityRunScriptsSystemPatch.RegisterGroupSlot(eGroup, Patches.AbilityRunScriptsSystemPatch.SlotKind.E);
-                Patches.AbilityRunScriptsSystemPatch.SetGroupSpeedMultiplier(eGroup, m.E);
-            }
+            var s = Convert.ToString(raw) ?? "";
+            var parts = s.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+            float Parse(int i) => (i < parts.Length && float.TryParse(parts[i], NumberStyles.Float, CultureInfo.InvariantCulture, out var f)) ? f : 0f;
+
+            p = Parse(0); q = Parse(1); e = Parse(2);
+            return (p > 0f) || (q > 0f) || (e > 0f);
         }
+
+       
+
+
+
+
+
+
+
+
+
+
     }
 }
+
 
 
 
