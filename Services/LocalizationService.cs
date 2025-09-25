@@ -36,28 +36,7 @@ internal class LocalizationService // the bones are from KindredCommands, ty Odj
         public Word[] Words { get; set; }
     }
 
-    static readonly string _language = ConfigService.LanguageLocalization;
-    static readonly Dictionary<string, string> _localizedLanguages = new()
-    {
-        {"English", "Unsheathed.Resources.Localization.English.json"},
-        {"German", "Unsheathed.Resources.Localization.German.json"},
-        {"French", "Unsheathed.Resources.Localization.French.json"},
-        {"Spanish", "Unsheathed.Resources.Localization.Spanish.json"},
-        {"Italian", "Unsheathed.Resources.Localization.Italian.json"},
-        {"Japanese", "Unsheathed.Resources.Localization.Japanese.json"},
-        {"Koreana", "Unsheathed.Resources.Localization.Koreana.json"},
-        {"Portuguese", "Unsheathed.Resources.Localization.Portuguese.json"},
-        {"Russian", "Unsheathed.Resources.Localization.Russian.json"},
-        {"SimplifiedChinese", "Unsheathed.Resources.Localization.SChinese.json"},
-        {"TraditionalChinese", "Unsheathed.Resources.Localization.TChinese.json"},
-        {"Hungarian", "Unsheathed.Resources.Localization.Hungarian.json"},
-        {"Latam", "Unsheathed.Resources.Localization.Latam.json"},
-        {"Polish", "Unsheathed.Resources.Localization.Polish.json"},
-        {"Thai", "Unsheathed.Resources.Localization.Thai.json"},
-        {"Turkish", "BlooUnsheatheddcraft.Resources.Localization.Turkish.json"},
-        {"Vietnamese", "Unsheathed.Resources.Localization.Vietnamese.json"},
-        {"Brazilian", "Unsheathed.Resources.Localization.Brazilian.json"}
-    };
+   
 
     static readonly Dictionary<int, string> _guidHashesToGuidStrings = [];
     static readonly Dictionary<string, string> _guidStringsToLocalizedNames = [];
@@ -100,7 +79,7 @@ internal class LocalizationService // the bones are from KindredCommands, ty Odj
     }
     static void InitializeLocalizations()
     {
-        LoadGuidStringsToLocalizedNames();
+      
     }
     static void GetPrefabGuidNames()
     {
@@ -140,40 +119,7 @@ internal class LocalizationService // the bones are from KindredCommands, ty Odj
             _sequenceGuidNames[sequenceGuid] = sequenceName;
         }
     }
-    static void LoadGuidStringsToLocalizedNames()
-    {
-        string resourceName = _localizedLanguages.ContainsKey(_language) ? _localizedLanguages[_language] : "Unsheathed.Resources.Localization.English.json";
-        Assembly assembly = Assembly.GetExecutingAssembly();
-        Stream stream = assembly.GetManifestResourceStream(resourceName);
-
-        if (stream == null)
-        {
-            Plugin.LogInstance.LogError($"[Localization] Failed to load resource - {resourceName}");
-        }
-
-        using StreamReader localizationReader = new(stream);
-
-        string jsonContent = localizationReader.ReadToEnd();
-
-        if (string.IsNullOrWhiteSpace(jsonContent))
-        {
-            Plugin.LogInstance.LogError($"[Localization] No JSON content!");
-        }
-
-        var localizationFile = JsonSerializer.Deserialize<LocalizationFile>(jsonContent, new JsonSerializerOptions
-        {
-            PropertyNameCaseInsensitive = true
-        });
-
-        if (localizationFile.Nodes == null)
-        {
-            Plugin.LogInstance.LogError($"[Localization] Deserialized file is null or missing Nodes!");
-        }
-
-        localizationFile.Nodes
-            .ToDictionary(x => x.Guid, x => x.Text)
-            .ForEach(kvp => _guidStringsToLocalizedNames[kvp.Key] = kvp.Value);
-    }
+   
     public static string GetAssetGuidString(PrefabGUID prefabGUID)
     {
         if (_guidHashesToGuidStrings.TryGetValue(prefabGUID.GuidHash, out var guidString))

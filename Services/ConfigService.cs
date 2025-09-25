@@ -22,102 +22,71 @@ internal static class ConfigService
     static readonly Lazy<bool> _spiritArsenal = new(() => GetConfigValue<bool>("SpiritArsenal"));
     public static bool SpiritArsenal => _spiritArsenal.Value;
 
-
-
-
-
-   
-
-
-
-    static readonly Lazy<float> _maxHealth = new(() => GetConfigValue<float>("MaxHealth"));
-    public static float MaxHealth => _maxHealth.Value;
-
-    static readonly Lazy<float> _movementSpeed = new(() => GetConfigValue<float>("MovementSpeed"));
-    public static float MovementSpeed => _movementSpeed.Value;
-
-    static readonly Lazy<float> _primaryAttackSpeed = new(() => GetConfigValue<float>("PrimaryAttackSpeed"));
-    public static float PrimaryAttackSpeed => _primaryAttackSpeed.Value;
-
-    static readonly Lazy<float> _physicalLifeLeech = new(() => GetConfigValue<float>("PhysicalLifeLeech"));
-    public static float PhysicalLifeLeech => _physicalLifeLeech.Value;
-
-    static readonly Lazy<float> _spellLifeLeech = new(() => GetConfigValue<float>("SpellLifeLeech"));
-    public static float SpellLifeLeech => _spellLifeLeech.Value;
-
-    static readonly Lazy<float> _primaryLifeLeech = new(() => GetConfigValue<float>("PrimaryLifeLeech"));
-    public static float PrimaryLifeLeech => _primaryLifeLeech.Value;
-
-    static readonly Lazy<float> _physicalPower = new(() => GetConfigValue<float>("PhysicalPower"));
-    public static float PhysicalPower => _physicalPower.Value;
-
-    static readonly Lazy<float> _spellPower = new(() => GetConfigValue<float>("SpellPower"));
-    public static float SpellPower => _spellPower.Value;
-
-    static readonly Lazy<float> _physicalCritChance = new(() => GetConfigValue<float>("PhysicalCritChance"));
-    public static float PhysicalCritChance => _physicalCritChance.Value;
-
-    static readonly Lazy<float> _physicalCritDamage = new(() => GetConfigValue<float>("PhysicalCritDamage"));
-    public static float PhysicalCritDamage => _physicalCritDamage.Value;
-
-    static readonly Lazy<float> _spellCritChance = new(() => GetConfigValue<float>("SpellCritChance"));
-    public static float SpellCritChance => _spellCritChance.Value;
-
-    static readonly Lazy<float> _spellCritDamage = new(() => GetConfigValue<float>("SpellCritDamage"));
-    public static float SpellCritDamage => _spellCritDamage.Value;
-
-
-    static readonly Lazy<bool> _bloodQualityBonus = new(() => GetConfigValue<bool>("BloodQualityBonus"));
-    public static bool BloodQualityBonus => _bloodQualityBonus.Value;
-
-
-
-
-
-    static readonly Lazy<float> _healingReceived = new(() => GetConfigValue<float>("HealingReceived"));
-    public static float HealingReceived => _healingReceived.Value;
-
-    static readonly Lazy<float> _damageReduction = new(() => GetConfigValue<float>("DamageReduction"));
-    public static float DamageReduction => _damageReduction.Value;
-
-    static readonly Lazy<float> _physicalResistance = new(() => GetConfigValue<float>("PhysicalResistance"));
-    public static float PhysicalResistance => _physicalResistance.Value;
-
-    static readonly Lazy<float> _spellResistance = new(() => GetConfigValue<float>("SpellResistance"));
-    public static float SpellResistance => _spellResistance.Value;
-
-    static readonly Lazy<float> _resourceYield = new(() => GetConfigValue<float>("ResourceYield"));
-    public static float ResourceYield => _resourceYield.Value;
-
-    static readonly Lazy<float> _reducedBloodDrain = new(() => GetConfigValue<float>("ReducedBloodDrain"));
-    public static float ReducedBloodDrain => _reducedBloodDrain.Value;
-
-    static readonly Lazy<float> _spellCooldownRecoveryRate = new(() => GetConfigValue<float>("SpellCooldownRecoveryRate"));
-    public static float SpellCooldownRecoveryRate => _spellCooldownRecoveryRate.Value;
-
-    static readonly Lazy<float> _weaponCooldownRecoveryRate = new(() => GetConfigValue<float>("WeaponCooldownRecoveryRate"));
-    public static float WeaponCooldownRecoveryRate => _weaponCooldownRecoveryRate.Value;
-
-    static readonly Lazy<float> _ultimateCooldownRecoveryRate = new(() => GetConfigValue<float>("UltimateCooldownRecoveryRate"));
-    public static float UltimateCooldownRecoveryRate => _ultimateCooldownRecoveryRate.Value;
-
-    static readonly Lazy<float> _minionDamage = new(() => GetConfigValue<float>("MinionDamage"));
-    public static float MinionDamage => _minionDamage.Value;
-
-    static readonly Lazy<float> _abilityAttackSpeed = new(() => GetConfigValue<float>("AbilityAttackSpeed"));
-    public static float AbilityAttackSpeed => _abilityAttackSpeed.Value;
-
-    static readonly Lazy<float> _corruptionDamageReduction = new(() => GetConfigValue<float>("CorruptionDamageReduction"));
-    public static float CorruptionDamageReduction => _corruptionDamageReduction.Value;
-
-
-
     static readonly Lazy<bool> _weaponsSystem = new(() => GetConfigValue<bool>("WeaponsSystem"));
- 
    public static bool WeaponsSystem => true;
 
+    // was: public static bool Debug_CastTweaks = false;
+    public static bool Debug_CastTweaks { get; private set; } = false;
 
-   
+    public static bool Debug_Buffs => GetConfigValue<bool>("Debug_Buffs");
+
+
+
+
+    // Accessors
+    static readonly Lazy<string> _ctoFishingPole = new(() => GetConfigValue<string>("CastTimeOverrides_FishingPole"));
+    static readonly Lazy<string> _ctoDagger = new(() => GetConfigValue<string>("CastTimeOverrides_Dagger"));
+    static readonly Lazy<string> _ctoReaper = new(() => GetConfigValue<string>("CastTimeOverrides_Reaper"));
+    static readonly Lazy<string> _ctoMace = new(() => GetConfigValue<string>("CastTimeOverrides_Mace"));
+    static readonly Lazy<string> _ctoSword = new(() => GetConfigValue<string>("CastTimeOverrides_Sword"));
+    static readonly Lazy<string> _ctoGreatsword = new(() => GetConfigValue<string>("CastTimeOverrides_Greatsword"));
+    static readonly Lazy<string> _ctoSpear = new(() => GetConfigValue<string>("CastTimeOverrides_Spear"));
+    static readonly Lazy<string> _ctoTwinBlades = new(() => GetConfigValue<string>("CastTimeOverrides_TwinBlades"));
+    static readonly Lazy<string> _ctoSlashers = new(() => GetConfigValue<string>("CastTimeOverrides_Slashers"));
+    static readonly Lazy<string> _ctoWhip = new(() => GetConfigValue<string>("CastTimeOverrides_Whip"));
+    static readonly Lazy<string> _ctoPistols = new(() => GetConfigValue<string>("CastTimeOverrides_Pistols"));
+    static readonly Lazy<string> _ctoCrossbow = new(() => GetConfigValue<string>("CastTimeOverrides_Crossbow"));
+    static readonly Lazy<string> _ctoBow = new(() => GetConfigValue<string>("CastTimeOverrides_Bow"));
+    static readonly Lazy<string> _ctoClaws = new(() => GetConfigValue<string>("CastTimeOverrides_Claws"));
+    static readonly Lazy<string> _ctoAxe = new(() => GetConfigValue<string>("CastTimeOverrides_Axe"));
+
+    public static string CastTimeOverrides_FishingPole => _ctoFishingPole.Value;
+    public static string CastTimeOverrides_Dagger => _ctoDagger.Value;
+    public static string CastTimeOverrides_Reaper => _ctoReaper.Value;
+    public static string CastTimeOverrides_Mace => _ctoMace.Value;
+    public static string CastTimeOverrides_Sword => _ctoSword.Value;
+    public static string CastTimeOverrides_Greatsword => _ctoGreatsword.Value;
+    public static string CastTimeOverrides_Spear => _ctoSpear.Value;
+    public static string CastTimeOverrides_TwinBlades => _ctoTwinBlades.Value;
+    public static string CastTimeOverrides_Slashers => _ctoSlashers.Value;
+    public static string CastTimeOverrides_Whip => _ctoWhip.Value;
+    public static string CastTimeOverrides_Pistols => _ctoPistols.Value;
+    public static string CastTimeOverrides_Crossbow => _ctoCrossbow.Value;
+    public static string CastTimeOverrides_Bow => _ctoBow.Value;
+    public static string CastTimeOverrides_Claws => _ctoClaws.Value;
+    public static string CastTimeOverrides_Axe => _ctoAxe.Value;
+
+
+    static readonly Lazy<string> _ctoGlobal =
+    new(() => GetConfigValue<string>("CastTimeOverrides"));
+
+
+    public static string CastTimeOverrides => _ctoGlobal.Value;
+
+    // (optional alias, if you ever referred to CastTimeOverrides_Global)
+    public static string CastTimeOverrides_Global => _ctoGlobal.Value;
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -134,12 +103,12 @@ internal static class ConfigService
         {
             return
             [
-            Path.Combine(BepInEx.Paths.ConfigPath, MyPluginInfo.PLUGIN_NAME),                                     // 0
-           
-            Path.Combine(BepInEx.Paths.ConfigPath, MyPluginInfo.PLUGIN_NAME, "PlayerBools")                     // 9
-          
+            Path.Combine(BepInEx.Paths.ConfigPath, MyPluginInfo.PLUGIN_NAME),                                    
+
             ];
         });
+
+
         public static List<string> DirectoryPaths => _directoryPaths.Value;
 
         public static readonly List<string> SectionOrder =
@@ -174,202 +143,368 @@ internal static class ConfigService
         "General", "Spirit_Loadout",
         "FishingPole,Daggers,Reaper,Mace,Sword,GreatSword,Spear,TwinBlades,Slashers,Whip,Pistols,Crossbow,Longbow,Claws",
         "Comma-separated weapon keys to override (case-insensitive). If empty, uses hardcoded defaults."),
-    
+
+
+    new ConfigEntryDefinition(
+    "General", "Debug_CastTweaks", false,
+    "If true, logs CastTimeTweaks merge/apply messages to the console."),
+
+    new ConfigEntryDefinition(
+    "Debug",                       // section
+    "Debug_Buffs",                 // key
+    "false",                       // default
+    "Enable logging for buff-related systems & patches"),
+
    
+    // (optional global bucket)
+new ConfigEntryDefinition("Weapons","CastTimeOverrides","", "Global/misc overrides"),
+
+
+
+
+
 
     // ==== SPIRIT — FISHING POLE ====
     new ConfigEntryDefinition(
-        "General", "Spirit_Groups_FishingPole",
+        "Weapons", "Spirit_Groups_FishingPole",
         "primary=AB_Fishing_AbilityGroup;q=AB_Bandit_Fisherman_SpinAttack_AbilityGroup;e=AB_Bandit_Fisherman_FishHook_AbilityGroup;copy=true,true,true",
         "FishingPole Prefab ability Format"),
+
     new ConfigEntryDefinition(
-        "General", "Spirit_Scripts_FishingPole",
+        "Weapons", "Spirit_Scripts_FishingPole",
         "-1,-5,-12",
         "Run script indices for FishingPole Spirit abilities as 'P,Q,E'. Use -1 to skip a slot."),
-   
+
+   new ConfigEntryDefinition(
+    "Weapons", "Spirit_Buffs_FishingPole",
+    "primary=;q=-822514423;e=-822514423",
+    "Buffs to apply during casts for FishingPole (primary/q/e). Empty disables."),
+
+   new ConfigEntryDefinition("Weapons","CastTimeOverrides_FishingPole","\"AB_Bandit_Fisherman_SpinAttack_AbilityGroup=AB_Bandit_Fisherman_SpinAttack_Cast,cast=0.05,post=0.05\" | \"AB_Bandit_Fisherman_FishHook_AbilityGroup=AB_Bandit_Fisherman_FishHook_Cast,cast=0.05,post=0.05\"", "FishingPole-only overrides"),
+
+
+
+
+
+
     // ==== SPIRIT — DAGGERS ====
     new ConfigEntryDefinition(
-        "General", "Spirit_Groups_Daggers",
-        "primary=1837385563;q=1971375367;e=211628325;copy=true,true,true",
+        "Weapons", "Spirit_Groups_Daggers",
+        "primary=AB_HighLord_UnholySkill_AbilityGroup;   q=AB_Undead_BishopOfDeath_CorpseExplosion_Hard_AbilityGroup;   e=AB_Undead_Leader_AreaAttack_Group;copy=true,true,true",
 
         "Daggers Prefab ability Format"),
     new ConfigEntryDefinition(
-        "General", "Spirit_Scripts_Daggers",
+        "Weapons", "Spirit_Scripts_Daggers",
         "-1,5,12",
         "Run script indices for Daggers Spirit abilities as 'P,Q,E'. Use -1 to skip a slot."),
-   
+
+   new ConfigEntryDefinition(
+    "Weapons", "Spirit_Buffs_Daggers",
+    "primary=;   q=-822514423;   e=-822514423",
+    "Buffs to apply during casts for Daggers (primary/q/e)."),
+
+   new ConfigEntryDefinition("Weapons","CastTimeOverrides_Dagger","\"AB_HighLord_UnholySkill_AbilityGroup=AB_HighLord_UnholySkill_Cast,cast=0.05,post=0.05\" | \"AB_Undead_BishopOfDeath_CorpseExplosion_Hard_AbilityGroup=AB_Undead_BishopOfDeath_CorpseExplosion_Hard_Cast,cast=0.05,post=0.05\" | \"AB_Undead_Leader_AreaAttack_Group=AB_Undead_Leader_AreaAttack_Cast,cast=0.05,post=0.05\"", "Dagger-only overrides"),
+
+
+
+
+
 
     // ==== SPIRIT — REAPER ====
     new ConfigEntryDefinition(
-        "General", "Spirit_Groups_Reaper",
-        "primary=948587795;q=-808864212;e=1691254929;copy=true,true,true",
+        "Weapons", "Spirit_Groups_Reaper",
+        "primary=AB_ArchMage_CrystalLance_Charged_AbilityGroup;   q=AB_IceRanger_LurkerSpikes_Split_AbilityGroup;   e=AB_IceRanger_IceNova_Large_AbilityGroup;copy=true,true,true",
         "Reaper Prefab ability Format"),
+
     new ConfigEntryDefinition(
-        "General", "Spirit_Scripts_Reaper",
+        "Weapons", "Spirit_Scripts_Reaper",
         "6,5,5",
         "Run script indices for Reaper Spirit abilities as 'P,Q,E'. Use -1 to skip a slot."),
-   
+
+   new ConfigEntryDefinition(
+    "Weapons", "Spirit_Buffs_Reaper",
+    "primary=;   q=-822514423;   e=-822514423",
+    "Buffs to apply during casts for Reaper (primary/q/e)."),
+
+   new ConfigEntryDefinition("Weapons","CastTimeOverrides_Reaper","\"AB_ArchMage_CrystalLance_Charged_AbilityGroup=AB_ArchMage_CrystalLance_Charged_Cast,cast=0.05,post=0.05\" | \"AB_IceRanger_LurkerSpikes_Split_AbilityGroup=AB_IceRanger_LurkerSpikes_Split_Cast,cast=0.05,post=0.05\" | \"AB_IceRanger_IceNova_Large_AbilityGroup=AB_IceRanger_IceNova_Large_Cast,cast=0.05,post=0.0.05\"", "Reaper-only overrides"),
+
+
+
+
+
 
     // ==== SPIRIT — MACE ====
     new ConfigEntryDefinition(
-        "General", "Spirit_Groups_Mace",
-        "primary=722599012;q=-1172099204;e=1926314891;copy=true,true,true",
+        "Weapons", "Spirit_Groups_Mace",
+        "primary=722599012;   q=AB_ChurchOfLight_Paladin_Hard_Dash_AbilityGroup;   e=AB_Paladin_HolyNuke_AbilityGroup;copy=true,true,true",
         "Mace Prefab ability Format"),
+
     new ConfigEntryDefinition(
-        "General", "Spirit_Scripts_Mace",
+        "Weaponsv", "Spirit_Scripts_Mace",
         "-1,-1,5",
         "Run script indices for Mace Spirit abilities as 'P,Q,E'. Use -1 to skip a slot."),
-   
+
+   new ConfigEntryDefinition(
+    "Weapons", "Spirit_Buffs_Mace",
+    "primary=;   q=-822514423;   e=-822514423",
+    "Buffs to apply during casts for Mace (primary/q/e)."),
+
+   new ConfigEntryDefinition("Weapons","CastTimeOverrides_Mace","\"  AB_ChurchOfLight_Paladin_Hard_Dash_AbilityGroup=AB_ChurchOfLight_Paladin_Hard_Dash_Cast,cast=0.05,post=0.05\" | \"AB_Paladin_HolyNuke_AbilityGroup=AB_Paladin_HolyNuke_Cast,cast=0.05,post=0.05\"", "Mace-only overrides"),
+
+
+
+
+
 
     // ==== SPIRIT — SWORD ====
     new ConfigEntryDefinition(
-        "General", "Spirit_Groups_Sword",
-        "primary=-2097352908;q=532210332;e=-1161896955;copy=true,true,true",
+        "Weapons", "Spirit_Groups_Sword",
+        "primary=-2097352908;   q=AB_Vampire_Dracula_SwordThrow_Abilitygroup;   e=AB_Vampire_Dracula_EtherialSword_Abilitygroup;copy=true,true,true",
         "Sword Prefab ability Format"),
+
     new ConfigEntryDefinition(
-        "General", "Spirit_Scripts_Sword",
+        "Weapons", "Spirit_Scripts_Sword",
         "-1,8,15",
         "Run script indices for Sword Spirit abilities as 'P,Q,E'. Use -1 to skip a slot."),
-   
+
+   new ConfigEntryDefinition(
+    "Weapons", "Spirit_Buffs_Sword",
+    "primary=;   q=-822514423;   e=-822514423",
+    "Buffs to apply during casts for Sword (primary/q/e)."),
+
+   new ConfigEntryDefinition("Weapons","CastTimeOverrides_Sword","\"AB_Vampire_Dracula_SwordThrow_Abilitygroup=AB_Vampire_Dracula_SwordThrow_Cast,cast=0.05,post=0.05\" | \"AB_Vampire_Dracula_EtherialSword_Abilitygroup=AB_Vampire_Dracula_EtherialSword_Cast,cast=0.05,post=0.05\"", "Sword-only overrides"),
+
+
+
+
+
+
     // ==== SPIRIT — GREATSWORD ====
     new ConfigEntryDefinition(
-        "General", "Spirit_Groups_GreatSword",
-        "primary=-1428882023;q=-328302080;e=-2126197617;copy=true,true,true",
+        "Weapons", "Spirit_Groups_GreatSword",
+        "primary=-1428882023;   q=AB_HighLord_SwordPrimary_MeleeAttack_AbilityGroup;   e=AB_HighLord_SwordDashCleave_AbilityGroup;copy=true,true,true",
         "GreatSword Prefab ability Format"),
+
     new ConfigEntryDefinition(
-        "General", "Spirit_Scripts_GreatSword",
+        "Weapons", "Spirit_Scripts_GreatSword",
         "-1,-1,5",
         "Run script indices for GreatSword Spirit abilities as 'P,Q,E'. Use -1 to skip a slot."),
-   
+
+   new ConfigEntryDefinition(
+    "Weapons", "Spirit_Buffs_GreatSword",
+    "primary=;   q=-822514423;   e=-822514423",
+    "Buffs to apply during casts for GreatSword (primary/q/e)."),
+
+   new ConfigEntryDefinition("Weapons","CastTimeOverrides_Greatsword","\"AB_HighLord_SwordPrimary_MeleeAttack_AbilityGroup=AB_HighLord_SwordPrimary_MeleeAttack_Cast01,cast=0.05,post=0.05\" | \"AB_HighLord_SwordPrimary_MeleeAttack_AbilityGroup=AB_HighLord_SwordPrimary_MeleeAttack_Cast02,cast=0.05,post=0.05\" | \"AB_HighLord_SwordDashCleave_AbilityGroup=AB_HighLord_SwordDashCleave_DashStrike_Cast,cast=0.05,post=0.05\"", "Greatsword-only overrides"),
+
+
+
+
+
 
     // ==== SPIRIT — SPEAR ====
     new ConfigEntryDefinition(
-        "General", "Spirit_Groups_Spear",
-        "primary=1142040823;q=381862924;e=1166337981;copy=true,true,true",
+        "Weapons", "Spirit_Groups_Spear",
+        "primary=1142040823;   q=AB_Blackfang_Viper_JavelinRain_AbilityGroup;   e=AB_ChurchOfLight_Overseer_SpinAttack_AbilityGroup;copy=true,true,true",
         "Spear Prefab ability Format"),
+
     new ConfigEntryDefinition(
-        "General", "Spirit_Scripts_Spear",
+        "Weapons", "Spirit_Scripts_Spear",
         "-1,2,11",
         "Run script indices for Spear Spirit abilities as 'P,Q,E'. Use -1 to skip a slot."),
-   
+
+   new ConfigEntryDefinition(
+    "Weapons", "Spirit_Buffs_Spear",
+    "primary=;   q=-822514423;   e=-822514423",
+    "Buffs to apply during casts for Spear (primary/q/e)."),
+
+   new ConfigEntryDefinition("Weapons","CastTimeOverrides_Spear","\"AB_Blackfang_Viper_JavelinRain_AbilityGroup=AB_Blackfang_Viper_JavelinRain_Cast,cast=0.05,post=0.05\" | \"AB_ChurchOfLight_Overseer_SpinAttack_AbilityGroup=AB_ChurchOfLight_Overseer_SpinAttack_Cast,cast=0.05,post=0\" | \"AB_ChurchOfLight_Overseer_PiercingCharge_AbilityGroup=AB_ChurchOfLight_Overseer_PiercingCharge_Cast,cast=0.05,post=0.05\"", "Spear-only overrides"),
+
+
+
+
+
 
     // ==== SPIRIT — TWINBLADES ====
     new ConfigEntryDefinition(
-        "General", "Spirit_Groups_TwinBlades",
-        "primary=298784800;q=-2023636973;e=-1357375516;copy=true,true,true",
+        "Weapons", "Spirit_Groups_TwinBlades",
+        "primary=298784800;   q=AB_Undead_ArenaChampion_Windslash_AbilityGroup;   e=AB_Undead_ArenaChampion_CounterStrike_AbilityGroup;copy=true,true,true",
         "TwinBlades Prefab ability Format"),
+
     new ConfigEntryDefinition(
-        "General", "Spirit_Scripts_TwinBlades",
+        "Weapons", "Spirit_Scripts_TwinBlades",
         "-1,-1,6",
         "Run script indices for TwinBlades Spirit abilities as 'P,Q,E'. Use -1 to skip a slot."),
-   
+
+   new ConfigEntryDefinition(
+    "Weapons", "Spirit_Buffs_TwinBlades",
+    "primary=;   q=-822514423;   e=-822514423",
+    "Buffs to apply during casts for TwinBlades (primary/q/e)."),
+
+   new ConfigEntryDefinition("Weapons","CastTimeOverrides_TwinBlades","\"AB_Undead_ArenaChampion_Windslash_AbilityGroup=AB_Undead_ArenaChampion_Windslash_Cast01,cast=0.05,post=0.05\" | \"AB_Undead_ArenaChampion_Windslash_AbilityGroup=AB_Undead_ArenaChampion_Windslash_Cast02,cast=0.05,post=0\" | \"AB_Undead_ArenaChampion_CounterStrike_AbilityGroup=AB_Undead_ArenaChampion_CounterStrike_Cast,cast=0.05,post=0.05\"", "TwinBlades-only overrides"),
+
+
+
+
+
 
     // ==== SPIRIT — SLASHERS ====
     new ConfigEntryDefinition(
-        "General", "Spirit_Groups_Slashers",
-        "primary=-186690512;q=-198012170;e=2019689688;copy=true,true,true",
+        "Weapons", "Spirit_Groups_Slashers",
+        "primary=-186690512;   q=AB_Blackfang_Livith_CuttingWind_AbilityGroup;   e=AB_Blackfang_Livith_SlicingDash_AbilityGroup;copy=true,true,true",
         "Slashers Prefab ability Format"),
+
     new ConfigEntryDefinition(
-        "General", "Spirit_Scripts_Slashers",
+        "Weapons", "Spirit_Scripts_Slashers",
         "-1,5,5",
         "Run script indices for Slashers Spirit abilities as 'P,Q,E'. Use -1 to skip a slot."),
-    
+
+    new ConfigEntryDefinition(
+    "Weapons", "Spirit_Buffs_Slashers",
+    "primary=;   q=-822514423;   e=-822514423",
+    "Buffs to apply during casts for Slashers (primary/q/e)."),
+
+    new ConfigEntryDefinition("Weapons","CastTimeOverrides_Slashers","\"AB_Blackfang_Livith_CuttingWind_AbilityGroup=AB_Blackfang_Livith_CuttingWind_Cast01,cast=0.05,post=0.05\" | \"AB_Blackfang_Livith_CuttingWind_AbilityGroup=AB_Blackfang_Livith_CuttingWind_Cast02,cast=0.05,post=0\" | \"AB_Blackfang_Livith_SlicingDash_AbilityGroup=AB_Blackfang_Livith_SlicingDash_Cast01,cast=0.05,post=0\"", "Slashers-only overrides"),
+
+
+
+
+
 
     // ==== SPIRIT — WHIP ====
     new ConfigEntryDefinition(
-        "General", "Spirit_Groups_Whip",
-        "primary=112329675;q=-1111373807;e=2130985273;copy=true,true,true",
+        "Weapons", "Spirit_Groups_Whip",
+        "primary=112329675;   q=AB_Lucie_PlayerAbility_WondrousHealingPotion_Throw_AbilityGroup;   e=AB_Gloomrot_RailgunSergeant_LightningWall_AbilityGroup;copy=true,true,true",
         "Whip Prefab ability Format"),
+
     new ConfigEntryDefinition(
-        "General", "Spirit_Scripts_Whip",
+        "Weapons", "Spirit_Scripts_Whip",
         "5,2,4",
         "Run script indices for Whip Spirit abilities as 'P,Q,E'. Use -1 to skip a slot."),
-   
+
+   new ConfigEntryDefinition(
+    "Weapons", "Spirit_Buffs_Whip",
+    "primary=;   q=-822514423;   e=-822514423",
+    "Buffs to apply during casts for Whip (primary/q/e)."),
+
+   new ConfigEntryDefinition("Weapons","CastTimeOverrides_Whip","\"AB_Lucie_PlayerAbility_WondrousHealingPotion_Throw_AbilityGroup=AB_Lucie_PlayerAbility_WondrousHealingPotion_Throw_Cast,cast=0.05,post=0.05\" | \"AB_Gloomrot_RailgunSergeant_LightningWall_AbilityGroup=AB_Gloomrot_RailgunSergeant_LightningWall_Cast,cast=0.05,post=0.05\"", "Whip-only overrides"),
+
+
+
+
+
 
     // ==== SPIRIT — PISTOLS ====
     new ConfigEntryDefinition(
-        "General", "Spirit_Groups_Pistols",
-        "primary=1622839653;q=-1884688827;e=-526118698;copy=true,true,true",
+        "Weapons", "Spirit_Groups_Pistols",
+        "primary=AB_Rifleman_Projectile_Group;   q=AB_VHunter_Jade_Snipe_Group;   e=AB_VHunter_Jade_DisablingShot_Group;copy=true,true,true",
         "Pistols Prefab ability Format"),
+
     new ConfigEntryDefinition(
-        "General", "Spirit_Scripts_Pistols",
+        "Weapons", "Spirit_Scripts_Pistols",
         "0,5,11",
         "Run script indices for Pistols Spirit abilities as 'P,Q,E'. Use -1 to skip a slot."),
-   
+
+    new ConfigEntryDefinition(
+    "Weapons", "Spirit_Buffs_Pistols",
+    "primary=;   q=-822514423;   e=-822514423",
+    "Buffs to apply during casts for Pistols (primary/q/e)."),
+
+    new ConfigEntryDefinition("Weapons","CastTimeOverrides_Pistols","\"AB_Rifleman_Projectile_Group=AB_Rifleman_Projectile_Cast,cast=0.05,post=0.05\" | \"AB_VHunter_Jade_Snipe_Group=AB_VHunter_Jade_Snipe_Cast,cast=0.05,post=0.05\" | \"AB_VHunter_Jade_DisablingShot_Group=AB_VHunter_Jade_DisablingShot_Cast,cast=0.05,post=0.05\"", "Pistols-only overrides"),
+
+
+
+
+
 
     // ==== SPIRIT — CROSSBOW ====
     new ConfigEntryDefinition(
-        "General", "Spirit_Groups_Crossbow",
-        "primary=1232856473;q=76767983;e=-444905742;copy=true,true,true",
+        "Weapons", "Spirit_Groups_Crossbow",
+        "primary=AB_Militia_BombThrow_AbilityGroup;   q=AB_VHunter_Jade_BlastVault_Group;   e=AB_Bandit_ClusterBombThrow_AbilityGroup;copy=true,true,true",
         "Crossbow Prefab ability Format"),
+
     new ConfigEntryDefinition(
-        "General", "Spirit_Scripts_Crossbow",
+        "Weapons", "Spirit_Scripts_Crossbow",
         "10,5,9",
         "Run script indices for Crossbow Spirit abilities as 'P,Q,E'. Use -1 to skip a slot."),
-  
+
+  new ConfigEntryDefinition(
+    "Weapons", "Spirit_Buffs_Crossbow",
+    "primary=;   q=-822514423;   e=-822514423",
+    "Buffs to apply during casts for Crossbow (primary/q/e)."),
+
+  new ConfigEntryDefinition("Weapons","CastTimeOverrides_Crossbow","\"AB_Militia_BombThrow_AbilityGroup=AB_Militia_BombThrow_Cast,cast=0.05,post=0.05\" | \"AB_VHunter_Jade_BlastVault_Group=AB_VHunter_Jade_BlastVault_Cast,cast=0.05,post=0.05\" | \"AB_Bandit_ClusterBombThrow_AbilityGroup=AB_Bandit_ClusterBombThrow_Cast,cast=0.05,post=0.05\"", "Crossbow-only overrides"),
+
+
+
+
+
+
     // ==== SPIRIT — LONGBOW ====
     new ConfigEntryDefinition(
-        "General", "Spirit_Groups_Longbow",
-        "primary=617823552;q=766284586;e=501615608;copy=true,true,true",
+        "Weapons", "Spirit_Groups_Longbow",
+        "primary=AB_Militia_LightArrow_UnsteadyQuickShot_Group;   q=AB_Bandit_FrostArrow_RainOfArrows_Hard_AbilityGroup;   e=AB_Bandit_Deadeye_Chaosbarrage_Hard_Group;copy=true,true,true",
         "Longbow Prefab ability Format"),
+
     new ConfigEntryDefinition(
-        "General", "Spirit_Scripts_Longbow",
+        "Weapons", "Spirit_Scripts_Longbow",
         "-1,5,7",
         "Run script indices for Longbow Spirit abilities as 'P,Q,E'. Use -1 to skip a slot."),
-   
+
+    new ConfigEntryDefinition(
+    "Weapons", "Spirit_Buffs_Longbow",
+    "primary=;   q=-822514423;   e=-822514423",
+    "Buffs to apply during casts for Longbow (primary/q/e)."),
+
+    new ConfigEntryDefinition("Weapons","CastTimeOverrides_Bow","\"AB_Militia_LightArrow_UnsteadyQuickShot_Group=AB_Militia_LightArrow_UnsteadyQuickShot_Cast,cast=0.05,post=0.05\" | \"AB_Bandit_FrostArrow_RainOfArrows_Hard_AbilityGroup=AB_Bandit_FrostArrow_RainOfArrows_Hard_Cast,cast=0.05,post=0.05\" | \"AB_Bandit_Deadeye_Chaosbarrage_Hard_Group=AB_Bandit_Deadeye_Chaosbarrage_Hard_Cast,cast=0.05,post=0.05\"", "Bow-only overrides"),
+
+
+
+
+
 
     // ==== SPIRIT — CLAWS ====
     new ConfigEntryDefinition(
-        "General", "Spirit_Groups_Claws",
-        "primary=1180130515;q=-1085783726;e=-2096054164;copy=true,true,true",
+        "Weapons", "Spirit_Groups_Claws",
+        "primary=1180130515;   q=AB_Blackfang_Striker_FistBlock_AbilityGroup;   e=AB_Prog_HomingNova_Group;copy=true,true,true",
         "Claws Prefab ability Format"),
+
     new ConfigEntryDefinition(
-        "General", "Spirit_Scripts_Claws",
+        "Weapons", "Spirit_Scripts_Claws",
         "-1,5,5",
         "Run script indices for Claws Spirit abilities as 'P,Q,E'. Use -1 to skip a slot."),
 
+    new ConfigEntryDefinition(
+    "Weapons", "Spirit_Buffs_Claws",
+    "primary=;   q=-822514423;   e=-822514423",
+    "Buffs to apply during casts for Claws (primary/q/e)."),
+
+    new ConfigEntryDefinition("Weapons","CastTimeOverrides_Claws","\"AB_Blackfang_Striker_FistBlock_AbilityGroup=AB_Blackfang_Striker_FistBlock_Cast,cast=0.05,post=0.05\" | \"AB_Prog_HomingNova_Group=AB_Prog_HomingNova_Cast,cast=0.05,post=0.05\"", "Claws-only overrides"),
 
 
 
-   
-   
 
 
 
-            // ==== SPIRIT (SPEED MULTIPLIERS) ====
-// Multiplies both PrimaryAttackSpeed & AbilityAttackSpeed while the Spirit slot is casting.
-// Format: "P,Q,E"  (0 = disabled)
-new ConfigEntryDefinition("Weapons","Spirit_Speeds_FishingPole","3,8,8","Attack speed multipliers for FishingPole (P,Q,E)."),
-new ConfigEntryDefinition("Weapons","Spirit_Speeds_Daggers","3,8,8","Attack speed multipliers for Daggers (P,Q,E)."),
-new ConfigEntryDefinition("Weapons","Spirit_Speeds_Reaper","3,8,8","Attack speed multipliers for Reaper (P,Q,E)."),
-new ConfigEntryDefinition("Weapons","Spirit_Speeds_Mace","3,8,8","Attack speed multipliers for Mace (P,Q,E)."),
-new ConfigEntryDefinition("Weapons","Spirit_Speeds_Sword","3,8,8","Attack speed multipliers for Sword (P,Q,E)."),
-new ConfigEntryDefinition("Weapons","Spirit_Speeds_GreatSword","3,8,8","Attack speed multipliers for GreatSword (P,Q,E)."),
-new ConfigEntryDefinition("Weapons","Spirit_Speeds_Spear","3,8,8","Attack speed multipliers for Spear (P,Q,E)."),
-new ConfigEntryDefinition("Weapons","Spirit_Speeds_TwinBlades","3,8,8","Attack speed multipliers for TwinBlades (P,Q,E)."),
-new ConfigEntryDefinition("Weapons","Spirit_Speeds_Slashers","3,8,8","Attack speed multipliers for Slashers (P,Q,E)."),
-new ConfigEntryDefinition("Weapons","Spirit_Speeds_Whip","3,8,8","Attack speed multipliers for Whip (P,Q,E)."),
-new ConfigEntryDefinition("Weapons","Spirit_Speeds_Pistols","3,8,8","Attack speed multipliers for Pistols (P,Q,E)."),
-new ConfigEntryDefinition("Weapons","Spirit_Speeds_Crossbow","3,8,8","Attack speed multipliers for Crossbow (P,Q,E)."),
-new ConfigEntryDefinition("Weapons","Spirit_Speeds_Longbow","3,8,8","Attack speed multipliers for Longbow (P,Q,E)."),
-new ConfigEntryDefinition("Weapons","Spirit_Speeds_Claws","3,8,8","Attack speed multipliers for Claws (P,Q,E).")
+     // ==== SPIRIT — AXE ====
+    new ConfigEntryDefinition(
+        "Weapons", "Spirit_Groups_Axe",
+        "primary=;   q=;   e=;copy=true,true,true",
+        "Axe Prefab ability Format"),
+  new ConfigEntryDefinition(
+        "Weapons", "Spirit_Scripts_Axe",
+        "",
+        "Run script indices for Axe Spirit abilities as 'P,Q,E'. Use -1 to skip a slot."),
+
+    new ConfigEntryDefinition(
+    "Weapons", "Spirit_Buffs_Axe",
+    "primary=;   q=-;   e=",
+    "Buffs to apply during casts for Axe (primary/q/e)."),
+
+    new ConfigEntryDefinition("Weapons","CastTimeOverrides_Axe","", "Axe-only overrides") // no Spirit_Groups_Axe in your file
 
 
-/*// e.g., after Spirit_Scripts_Daggers, CSV of prefab names for your Spirit Daggers items (e.g., Item_Weapon_Daggers_Legendary_T06)"),
-new ConfigEntryDefinition("General", "Spirit_Items_Daggers", "Item_Weapon_Daggers_Legendary_T06", "CSV of prefab names for Spirit Daggers items"),
-new ConfigEntryDefinition("General","Spirit_Items_Sword","Item_Weapon_Sword_Legendary_T06",      "CSV of prefab names for Spirit Sword items"),
-new ConfigEntryDefinition("General","Spirit_Items_GreatSword","Item_Weapon_GreatSword_Legendary_T06", "CSV of prefab names for Spirit GreatSword items"),
-new ConfigEntryDefinition("General","Spirit_Items_TwinBlades","Item_Weapon_TwinBlades_Legendary_T06", "CSV of prefab names for Spirit TwinBlades items"),
-new ConfigEntryDefinition("General","Spirit_Items_Slashers","Item_Weapon_Slashers_Legendary_T06",   "CSV of prefab names for Spirit Slashers items"),
-new ConfigEntryDefinition("General","Spirit_Items_Mace","Item_Weapon_Mace_Legendary_T06",       "CSV of prefab names for Spirit Mace items"),
-new ConfigEntryDefinition("General","Spirit_Items_Reaper","Item_Weapon_Reaper_Legendary_T06",     "CSV of prefab names for Spirit Reaper items"),
-new ConfigEntryDefinition("General","Spirit_Items_Spear","Item_Weapon_Spear_Legendary_T06",      "CSV of prefab names for Spirit Spear items"),
-new ConfigEntryDefinition("General","Spirit_Items_Whip","Item_Weapon_Whip_Legendary_T06",       "CSV of prefab names for Spirit Whip items"),
-new ConfigEntryDefinition("General","Spirit_Items_Pistols","Item_Weapon_Pistols_Legendary_T06",    "CSV of prefab names for Spirit Pistols items"),
-new ConfigEntryDefinition("General","Spirit_Items_Crossbow","Item_Weapon_Crossbow_Legendary_T06",   "CSV of prefab names for Spirit Crossbow items"),
-new ConfigEntryDefinition("General","Spirit_Items_Longbow","Item_Weapon_Longbow_Legendary_T06",    "CSV of prefab names for Spirit Longbow items"),
-new ConfigEntryDefinition("General","Spirit_Items_Claws","Item_Weapon_Claws_Legendary_T06",      "CSV of prefab names for Spirit Claws items"),
-new ConfigEntryDefinition("General","Spirit_Items_FishingPole","Item_Weapon_FishingPole_T01", "CSV of prefab names for Spirit FishingPole items")*/
+
 
 
         };
@@ -672,9 +807,10 @@ new ConfigEntryDefinition("General","Spirit_Items_FishingPole","Item_Weapon_Fish
                         List<string> sectionLines = OrderedSections[section];
 
                         // Extract keys from the config file
-                        List<string> sectionKeys = [..sectionLines
-                            .Where(line => line.Contains('='))
-                            .Select(line => line.Split('=')[0].Trim())];
+                        List<string> sectionKeys = sectionLines
+                     .Where(line => line.Contains('=') && !line.TrimStart().StartsWith("#"))
+                     .Select(line => line.Split('=')[0].Trim())
+                    .ToList();
 
                         // Create a dictionary of default values directly from ConfigEntries
                         Dictionary<string, object> defaultValuesMap = ConfigEntries
@@ -686,11 +822,30 @@ new ConfigEntryDefinition("General","Spirit_Items_FishingPole","Item_Weapon_Fish
 
                         foreach (var line in sectionLines)
                         {
+                            var trimmed = line.Trim();
+
+                            // if previous line (a key) was skipped as obsolete, also skip its "# Default value: ..." line
+                            if (previousLineSkipped && trimmed.StartsWith(DEFAULT_VALUE_LINE))
+                            {
+                                previousLineSkipped = false;
+                                continue;
+                            }
+
+                            // pass through regular comments (but not the default-value marker we handle above)
+                            if (trimmed.StartsWith("#") && !trimmed.StartsWith(DEFAULT_VALUE_LINE))
+                            {
+                                writer.WriteLine(line);
+                                previousLineSkipped = false;
+                                continue;
+                            }
+
                             if (line.Contains('='))
                             {
                                 string key = line.Split('=')[0].Trim();
 
-                                // Skip obsolete keys that are not in ConfigEntries
+                                // ignore commented key-like lines just in case
+                                if (key.StartsWith("#")) { writer.WriteLine(line); previousLineSkipped = false; continue; }
+
                                 if (!defaultValuesMap.ContainsKey(key))
                                 {
                                     Core.Log.LogWarning($"Skipping obsolete config entry: {key}");
@@ -699,33 +854,34 @@ new ConfigEntryDefinition("General","Spirit_Items_FishingPole","Item_Weapon_Fish
                                 }
                             }
 
-                            // Prevent consecutive blank lines by skipping extra ones
-                            if (string.IsNullOrWhiteSpace(line) && previousLineSkipped)
-                            {
-                                continue;
-                            }
-
                             if (line.Contains(DEFAULT_VALUE_LINE))
                             {
-                                ConfigEntryDefinition entry = ConfigEntries.FirstOrDefault(e => e.Key == sectionKeys[keyIndex] && e.Section == section);
-
-                                if (entry != null)
+                                // guard against out-of-range and missing entry
+                                if (keyIndex < sectionKeys.Count)
                                 {
-                                    writer.WriteLine(DEFAULT_VALUE_LINE + entry.DefaultValue.ToString());
-                                    keyIndex++;
+                                    var entry = ConfigEntries.FirstOrDefault(e => e.Key == sectionKeys[keyIndex] && e.Section == section);
+                                    if (entry != null)
+                                    {
+                                        writer.WriteLine(DEFAULT_VALUE_LINE + entry.DefaultValue.ToString());
+                                        keyIndex++;
+                                    }
+                                    else
+                                    {
+                                        Core.Log.LogWarning($"Config entry for key '{sectionKeys[keyIndex]}' not found in ConfigEntries!");
+                                        writer.WriteLine(line);
+                                    }
                                 }
                                 else
                                 {
-                                    Core.Log.LogWarning($"Config entry for key '{sectionKeys[keyIndex]}' not found in ConfigEntries!");
                                     writer.WriteLine(line);
                                 }
-                            }
-                            else
-                            {
-                                writer.WriteLine(line);
+                                previousLineSkipped = false;
+                                continue;
                             }
 
-                            previousLineSkipped = false; // Reset flag since we wrote a valid line
+                            // existing blank-line squashing can remain as-is
+                            writer.WriteLine(line);
+                            previousLineSkipped = false;
                         }
                     }
                 }

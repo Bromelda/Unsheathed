@@ -64,7 +64,10 @@ internal static class Core
 
     static void Spirit_Apply(string weaponKey, PrefabGUID equipBuffGuid)
     {
-        // Only act if config provides values (and if weaponKey is in Spirit_Loadout, when specified)
+        // Only act if config provides values (and if weaponKey is in Spirit_
+        //
+        //
+        // , when specified)
         if (!Unsheathed.Utilities.Configuration.TryGetSpiritGroups(weaponKey, out var s))
             return;
 
@@ -99,19 +102,24 @@ internal static class Core
             if (ie >= 0) AbilityRunScriptsSystemPatch.AddWeaponsSpell(s.E, ie);
 
             Log.LogInfo($"[Spirit] Script indices for {weaponKey} = {ip},{iq},{ie}");
+        }
+        // After scripts indices block in Spirit_Apply(...)
+        if (Unsheathed.Utilities.Configuration.TryGetSpiritBuffs(weaponKey, out var b))
+        {
+            // tie buffs to the exact ability groups we just placed on this equip buff
+            if (b.HasPrimary) AbilityRunScriptsSystemPatch.RegisterWeaponSlotBuff(s.Primary, b.Primary);
+            if (b.HasQ) AbilityRunScriptsSystemPatch.RegisterWeaponSlotBuff(s.Q, b.Q);
+            if (b.HasE) AbilityRunScriptsSystemPatch.RegisterWeaponSlotBuff(s.E, b.E);
 
-            if (Unsheathed.Utilities.Configuration.TryGetSpiritSpeeds(weaponKey, out var sp, out var sq, out var se))
-            {
-                if (sp > 0f) AbilityRunScriptsSystemPatch.AddWeaponSlotSpeed(s.Primary, sp, equipBuffGuid);
-                if (sq > 0f) AbilityRunScriptsSystemPatch.AddWeaponSlotSpeed(s.Q, sq, equipBuffGuid);
-                if (se > 0f) AbilityRunScriptsSystemPatch.AddWeaponSlotSpeed(s.E, se, equipBuffGuid);
-
-                
-            }
+            Log.LogInfo($"[Spirit] Buffs for {weaponKey} " +
+                        $"(P={(b.HasPrimary ? b.Primary.GuidHash : 0)}, " +
+                        $"Q={(b.HasQ ? b.Q.GuidHash : 0)}, " +
+                        $"E={(b.HasE ? b.E.GuidHash : 0)})");
         }
 
-        }
-    
+      
+    }
+  
 
 
 
@@ -326,11 +334,11 @@ internal static class Core
                         CopyCooldown = true,
                         Priority = 0
                     });
-                    AbilityRunScriptsSystemPatch.AddWeaponsSpell(PrefabGUIDs.AB_Bandit_Fisherman_SpinAttack_AbilityGroup, 0); // 0 = spell index
+                   
 
 
 
-                    // WeaponE - slot 2
+                    // WeaponE - slot 4
 
                     buffer.Add(new ReplaceAbilityOnSlotBuff
                     {
@@ -339,7 +347,7 @@ internal static class Core
                         CopyCooldown = true,
                         Priority = 0
                     });
-                    AbilityRunScriptsSystemPatch.AddWeaponsSpell(PrefabGUIDs.AB_Bandit_Fisherman_FishHook_AbilityGroup, 0); // 0 = spell index
+                   
 
                 }
             }
@@ -378,11 +386,11 @@ internal static class Core
                         CopyCooldown = true,
                         Priority = 0
                     });
-                    AbilityRunScriptsSystemPatch.AddWeaponsSpell(PrefabGUIDs.AB_Undead_BishopOfDeath_CorpseExplosion_Hard_AbilityGroup, 5); // 0 = spell index
+                   
 
 
 
-                    // WeaponE - slot 2
+                    // WeaponE - slot 4
 
                     buffer.Add(new ReplaceAbilityOnSlotBuff
                     {
@@ -391,7 +399,7 @@ internal static class Core
                         CopyCooldown = true,
                         Priority = 0
                     });
-                    AbilityRunScriptsSystemPatch.AddWeaponsSpell(PrefabGUIDs.AB_Undead_Leader_AreaAttack_Group, 12); // 0 = spell index
+                   
 
                 }
             }
@@ -419,8 +427,7 @@ internal static class Core
                         CopyCooldown = true,
                         Priority = 0
                     });
-                    AbilityRunScriptsSystemPatch.AddWeaponsSpell(PrefabGUIDs.AB_Undead_Leader_SpinningDash_Group, 6); // 0 = spell index
-
+                   
 
                     // weaponQ (Right click) - slot 1
 
@@ -431,10 +438,10 @@ internal static class Core
                         CopyCooldown = true,
                         Priority = 0
                     });
-                    AbilityRunScriptsSystemPatch.AddWeaponsSpell(PrefabGUIDs.AB_IceRanger_LurkerSpikes_Split_AbilityGroup, 5); // 0 = spell index
+                   
 
 
-                    // WeaponE - slot 2
+                    // WeaponE - slot 4
 
                     buffer.Add(new ReplaceAbilityOnSlotBuff
                     {
@@ -443,7 +450,7 @@ internal static class Core
                         CopyCooldown = true,
                         Priority = 0
                     });
-                    AbilityRunScriptsSystemPatch.AddWeaponsSpell(PrefabGUIDs.AB_IceRanger_IceNova_Large_AbilityGroup, 5); // 0 = spell index
+                    
 
                 }
             }
@@ -482,10 +489,10 @@ internal static class Core
                         CopyCooldown = true,
                         Priority = 0
                     });
-                    AbilityRunScriptsSystemPatch.AddWeaponsSpell(PrefabGUIDs.AB_ChurchOfLight_Paladin_Dash_AbilityGroup, 7); // 0 = spell index
+                   
 
 
-                    // WeaponE - slot 2
+                    // WeaponE - slot 4
 
                     buffer.Add(new ReplaceAbilityOnSlotBuff
                     {
@@ -494,7 +501,7 @@ internal static class Core
                         CopyCooldown = true,
                         Priority = 0
                     });
-                    AbilityRunScriptsSystemPatch.AddWeaponsSpell(PrefabGUIDs.AB_Paladin_HolyNuke_AbilityGroup, 5); // 0 = spell index
+                   
                 }
             }
 
@@ -533,10 +540,10 @@ internal static class Core
                         CopyCooldown = true,
                         Priority = 0
                     });
-                    AbilityRunScriptsSystemPatch.AddWeaponsSpell(PrefabGUIDs.AB_Militia_Scribe_InkFuel_AbilityGroup, 8); // 0 = spell index
+                   
 
 
-                    // WeaponE - slot 2
+                    // WeaponE - slot 4
 
                     buffer.Add(new ReplaceAbilityOnSlotBuff
                     {
@@ -545,7 +552,7 @@ internal static class Core
                         CopyCooldown = true,
                         Priority = 0
                     });
-                    AbilityRunScriptsSystemPatch.AddWeaponsSpell(PrefabGUIDs.AB_Undead_CursedSmith_Summon_WeaponSword_AbilityGroup, 15); // 0 = spell index
+                   
 
                 }
             }
@@ -582,7 +589,7 @@ internal static class Core
                         Priority = 0
                     });
 
-                    // WeaponE - slot 2
+                    // WeaponE - slot 4
                     buffer.Add(new ReplaceAbilityOnSlotBuff
                     {
                         Slot = 4,
@@ -590,7 +597,7 @@ internal static class Core
                         CopyCooldown = true,
                         Priority = 0
                     });
-                    AbilityRunScriptsSystemPatch.AddWeaponsSpell(PrefabGUIDs.AB_HighLord_SwordDashCleave_AbilityGroup, 5); // 0 = spell index
+                   
                 }
             }
 
@@ -626,9 +633,9 @@ internal static class Core
                         CopyCooldown = true,
                         Priority = 0
                     });
-                    AbilityRunScriptsSystemPatch.AddWeaponsSpell(PrefabGUIDs.AB_Blackfang_Viper_JavelinRain_AbilityGroup, 2); // 0 = spell index
+                   
 
-                    // WeaponE - slot 2
+                    // WeaponE - slot 4
                     buffer.Add(new ReplaceAbilityOnSlotBuff
                     {
                         Slot = 4,
@@ -636,7 +643,7 @@ internal static class Core
                         CopyCooldown = true,
                         Priority = 0
                     });
-                    AbilityRunScriptsSystemPatch.AddWeaponsSpell(PrefabGUIDs.AB_Undead_CursedSmith_FloatingSpear_SpearThrust_AbilityGroup, 11); // 0 = spell index
+                   
                 }
             }
 
@@ -673,7 +680,7 @@ internal static class Core
                     });
 
 
-                    // WeaponE - slot 2
+                    // WeaponE - slot 4
                     buffer.Add(new ReplaceAbilityOnSlotBuff
                     {
                         Slot = 4,
@@ -681,7 +688,7 @@ internal static class Core
                         CopyCooldown = true,
                         Priority = 0
                     });
-                    AbilityRunScriptsSystemPatch.AddWeaponsSpell(PrefabGUIDs.AB_Undead_ArenaChampion_CounterStrike_AbilityGroup, 6); // 0 = spell index
+                   
                 }
             }
 
@@ -716,9 +723,9 @@ internal static class Core
                         CopyCooldown = true,
                         Priority = 0
                     });
-                    AbilityRunScriptsSystemPatch.AddWeaponsSpell(PrefabGUIDs.AB_Militia_Scribe_CuttingParchment02_AbilityGroup, 5); // 0 = spell index
 
-                    // WeaponE - slot 2
+
+                    // WeaponE - slot 4
                     buffer.Add(new ReplaceAbilityOnSlotBuff
                     {
                         Slot = 4,
@@ -726,7 +733,7 @@ internal static class Core
                         CopyCooldown = true,
                         Priority = 0
                     });
-                    AbilityRunScriptsSystemPatch.AddWeaponsSpell(PrefabGUIDs.AB_Militia_Scribe_RazorParchment_AbilityGroup, 5); // 0 = spell index
+                   
                 }
             }
 
@@ -752,7 +759,7 @@ internal static class Core
                         CopyCooldown = true,
                         Priority = 0
                     });
-                    AbilityRunScriptsSystemPatch.AddWeaponsSpell(PrefabGUIDs.AB_CastleMan_SpinShield_AbilityGroup, 5); // 0 = spell index
+                   
 
                     // weaponQ (Right click) - slot 1
                     buffer.Add(new ReplaceAbilityOnSlotBuff
@@ -762,9 +769,9 @@ internal static class Core
                         CopyCooldown = true,
                         Priority = 0
                     });
-                    AbilityRunScriptsSystemPatch.AddWeaponsSpell(PrefabGUIDs.AB_Lucie_PlayerAbility_WondrousHealingPotion_Throw_AbilityGroup, 2); // 0 = spell index
+                  
 
-                    // WeaponE - slot 2
+                    // WeaponE - slot 4
                     buffer.Add(new ReplaceAbilityOnSlotBuff
                     {
                         Slot = 4,
@@ -772,7 +779,7 @@ internal static class Core
                         CopyCooldown = true,
                         Priority = 0
                     });
-                    AbilityRunScriptsSystemPatch.AddWeaponsSpell(PrefabGUIDs.AB_Bandit_Foreman_ThrowNet_Group, 4); // 0 = spell index
+                   
                 }
             }
 
@@ -794,15 +801,15 @@ internal static class Core
 
                         // PRIMARY (LMB) slot 0
                         buffer.Add(new ReplaceAbilityOnSlotBuff { Slot = 0, NewGroupId = PrefabGUIDs.AB_VHunter_Jade_Revolvers4_Group, CopyCooldown = true, Priority = 0 });
-                        AbilityRunScriptsSystemPatch.AddWeaponsSpell(PrefabGUIDs.AB_VHunter_Jade_Revolvers4_Group, 1);
+                       
 
                         // weaponQ (RMB) slot 1
                         buffer.Add(new ReplaceAbilityOnSlotBuff { Slot = 1, NewGroupId = PrefabGUIDs.AB_VHunter_Jade_Snipe_Group, CopyCooldown = true, Priority = 0 });
-                        AbilityRunScriptsSystemPatch.AddWeaponsSpell(PrefabGUIDs.AB_VHunter_Jade_Snipe_Group, 5);
+                       
 
                         // WeaponE slot 4
                         buffer.Add(new ReplaceAbilityOnSlotBuff { Slot = 4, NewGroupId = PrefabGUIDs.AB_VHunter_Jade_DisablingShot_Group, CopyCooldown = true, Priority = 0 });
-                        AbilityRunScriptsSystemPatch.AddWeaponsSpell(PrefabGUIDs.AB_VHunter_Jade_DisablingShot_Group, 11);
+                        
                     }
                 }
             }
@@ -830,7 +837,7 @@ internal static class Core
                         CopyCooldown = true,
                         Priority = 0
                     });
-                    AbilityRunScriptsSystemPatch.AddWeaponsSpell(PrefabGUIDs.AB_Militia_BombThrow_AbilityGroup, 2); // 0 = spell index
+                   
 
                     // weaponQ (Right click) - slot 1
                     buffer.Add(new ReplaceAbilityOnSlotBuff
@@ -840,9 +847,9 @@ internal static class Core
                         CopyCooldown = true,
                         Priority = 0
                     });
-                    AbilityRunScriptsSystemPatch.AddWeaponsSpell(PrefabGUIDs.AB_VHunter_Jade_BlastVault_Group, 7); // 0 = spell index
+                   
 
-                    // WeaponE - slot 2
+                    // WeaponE - slot 4
                     buffer.Add(new ReplaceAbilityOnSlotBuff
                     {
                         Slot = 4,
@@ -850,7 +857,7 @@ internal static class Core
                         CopyCooldown = true,
                         Priority = 0
                     });
-                    AbilityRunScriptsSystemPatch.AddWeaponsSpell(PrefabGUIDs.AB_Bandit_ClusterBombThrow_AbilityGroup, 7); // 0 = spell index
+                   
                 }
             }
 
@@ -885,9 +892,9 @@ internal static class Core
                         CopyCooldown = true,
                         Priority = 0
                     });
-                    AbilityRunScriptsSystemPatch.AddWeaponsSpell(PrefabGUIDs.AB_Bandit_FrostArrow_RainOfArrows_AbilityGroup, 5); // 0 = spell index
+                    
 
-                    // WeaponE - slot 2
+                    // WeaponE - slot 4
                     buffer.Add(new ReplaceAbilityOnSlotBuff
                     {
                         Slot = 4,
@@ -895,7 +902,7 @@ internal static class Core
                         CopyCooldown = true,
                         Priority = 0
                     });
-                    AbilityRunScriptsSystemPatch.AddWeaponsSpell(PrefabGUIDs.AB_VHunter_Jade_Stealth_Group, 7); // 0 = spell indexv
+                    
                 }
             }
 
@@ -931,9 +938,9 @@ internal static class Core
                         CopyCooldown = true,
                         Priority = 0
                     });
-                    AbilityRunScriptsSystemPatch.AddWeaponsSpell(PrefabGUIDs.AB_Prog_HomingNova_Group, 5); // 0 = spell index
-
-                    // WeaponE - slot 2
+                  
+                    
+                    // WeaponE - slot 4
                     buffer.Add(new ReplaceAbilityOnSlotBuff
                     {
                         Slot = 4,
@@ -941,7 +948,7 @@ internal static class Core
                         CopyCooldown = true,
                         Priority = 0
                     });
-                    AbilityRunScriptsSystemPatch.AddWeaponsSpell(PrefabGUIDs.AB_Blackfang_Striker_FistBlock_AbilityGroup, 5); // 0 = spell index
+                   
                 }
             }
 
@@ -954,6 +961,7 @@ internal static class Core
         
 
             Spirit_ApplyAllConfigured();
+          
         }
        
     }

@@ -1,4 +1,4 @@
-using Unsheathed.Patches;
+﻿using Unsheathed.Patches;
 using Unsheathed.Resources;
 using Unsheathed.Services;
 using ProjectM;
@@ -10,12 +10,66 @@ using Unity.Entities;
 
 
 namespace Unsheathed.Utilities;
+
+
+/// Put the buff GUIDs you want to use here so they're owned by your repo.
+public static class EquipBuffConfig
+{
+    public static readonly PrefabGUID MaceT06Buff = new PrefabGUID(-1515928707);
+    public static readonly PrefabGUID SwordT06Buff = new PrefabGUID(-123456789);
+    public static readonly PrefabGUID AxeT06Buff = new PrefabGUID(-987654321);
+    // add more as needed
+}
+
+
+
 internal static class Buffs
 {
     static ServerGameManager ServerGameManager => Core.ServerGameManager;
     static SystemService SystemService => Core.SystemService;
     static DebugEventsSystem DebugEventsSystem => SystemService.DebugEventsSystem;
     static PrefabCollectionSystem PrefabCollectionSystem => SystemService.PrefabCollectionSystem;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     public static readonly PrefabGUID HighlordDeadBuff = PrefabGUIDs.AB_HighLordSword_SelfStun_DeadBuff;
     public static readonly PrefabGUID CastleManCombatBuff = PrefabGUIDs.Buff_InCombat_Npc_CastleMan;
