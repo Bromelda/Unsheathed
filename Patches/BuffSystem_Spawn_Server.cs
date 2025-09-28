@@ -1,18 +1,19 @@
-﻿using System;
-using System.Collections;                 // IEnumerator
-using System.Collections.Generic;         // Dictionary, HashSet
-using BepInEx.Unity.IL2CPP;
+﻿using BepInEx.Unity.IL2CPP;
 using HarmonyLib;
 using ProjectM;
 using ProjectM.Gameplay.Scripting;
 using ProjectM.Scripting;
 using ProjectM.Shared;
 using Stunlock.Core;
+using System;
+using System.Collections;                 // IEnumerator
+using System.Collections.Generic;         // Dictionary, HashSet
 using Unity.Collections;
 using Unity.Entities;
 using Unsheathed;
 using Unsheathed.Resources;
 using Unsheathed.Services;
+using Unsheathed.Utilities;
 
 namespace Unsheathed.Patches
 {
@@ -119,7 +120,7 @@ namespace Unsheathed.Patches
             EnsureAllowlistBuilt(); // <- you were missing this
 
             var em = __instance.EntityManager;
-            var q  = __instance._Query;
+            var q = __instance._Query;
 
             var entities = q.ToEntityArray(Allocator.Temp);
             try
@@ -129,38 +130,38 @@ namespace Unsheathed.Patches
                     var e = entities[i];
                     if (!em.Exists(e) || !em.HasComponent<PrefabGUID>(e)) continue;
 
-                    var guid = em.GetComponentData<PrefabGUID>(e);
-                    var h    = guid.GuidHash;
-
-                    // 1) MovementBuff AS: edit stats (now or next frame) and strip spawn listeners next frame
-                    if (h == MovementBuff.GuidHash)
+                    var owner = em.GetComponentData<EntityOwner>(e).Owner;
+                    if (owner != Entity.Null && em.Exists(owner) && em.HasComponent<PlayerCharacter>(owner))
                     {
-                      
-                        const float abilityAS = 9.0f;  // stay within net rails
+                        var guid = em.GetComponentData<PrefabGUID>(e);
+                        var h = guid.GuidHash;
 
-                        bool patchedNow = false;
-                        if (em.HasBuffer<ModifyUnitStatBuff_DOTS>(e))
+                        // 1) MovementBuff AS: edit stats (now or next frame) and strip spawn listeners next frame
+                        if (h == MovementBuff.GuidHash)
                         {
-                            var mods = em.GetBuffer<ModifyUnitStatBuff_DOTS>(e);
-                          
-                            AppendOrUpdate(ref mods, UnitStatType.AbilityAttackSpeed, abilityAS);
-                            patchedNow = true;
 
-                            Core.StartCoroutine(RemoveSpawnScriptsNextFrame(e));
+                            const float abilityAS = 9.0f;  // stay within net rails
+
+                            bool patchedNow = false;
+                            if (em.HasBuffer<ModifyUnitStatBuff_DOTS>(e))
+                            {
+                                var mods = em.GetBuffer<ModifyUnitStatBuff_DOTS>(e);
+
+                                AppendOrUpdate(ref mods, UnitStatType.AbilityAttackSpeed, abilityAS);
+                                patchedNow = true;
+
+                                Core.StartCoroutine(RemoveSpawnScriptsNextFrame(e));
+                            }
+                            else
+                            {
+                                Core.StartCoroutine(PatchVeilStormNextFrame(e, abilityAS, alsoStripSpawn: true));
+                            }
+
+                            BuffLog($"[BuffSystem_Spawn_Server] AS mods for {h} on {e.Index} (now={patchedNow}).");
                         }
-                        else
-                        {
-                            Core.StartCoroutine(PatchVeilStormNextFrame(e,  abilityAS, alsoStripSpawn: true));
-                        }
 
-                        BuffLog($"[BuffSystem_Spawn_Server] AS mods for {h} on {e.Index} (now={patchedNow}).");
-                    }
-
-                    // 2) Any allow-listed buff (equip or MovementBuff): remove caps while present (ref-counted)
-                    if (_uncapBuffHashes.Contains(h) && em.HasComponent<EntityOwner>(e))
-                    {
-                        var owner = em.GetComponentData<EntityOwner>(e).Owner;
-                        if (owner != Entity.Null && em.Exists(owner) && em.HasComponent<PlayerCharacter>(owner))
+                        // 2) Any allow-listed buff (equip or MovementBuff): remove caps while present (ref-counted)
+                        if (_uncapBuffHashes.Contains(h) && em.HasComponent<EntityOwner>(e))
                         {
                             if (_uncap.TryGetValue(owner, out var info))
                             {

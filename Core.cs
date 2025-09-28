@@ -286,14 +286,6 @@ internal static class Core
 
 
 
-
-
-
-
-
-
-
-
         if (ConfigService.SpiritArsenal)
         {
 

@@ -14,7 +14,7 @@ using Unity.Collections;
 using Unity.Entities;
 using UnityEngine;
 using VampireCommandFramework;
-
+using System.Collections.Generic;
 
 
 
@@ -22,6 +22,20 @@ using static Unsheathed.Utilities.EntityQueries;
 
 
 namespace Unsheathed.Utilities;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 internal static class Weapons
 {
     static EntityManager EntityManager => Core.EntityManager;
